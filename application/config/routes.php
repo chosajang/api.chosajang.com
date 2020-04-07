@@ -66,7 +66,7 @@ $route['project/(:any)'] = 'site/project/$1';
 $route['board/(:any)'] = 'admin/board/$1';
 $route['admin/user/(:any)'] = 'admin/user/$1';
 
-$route['sample/(:any)'] = 'sample/$1';
+$route['api/sample/(:any)'] = 'sample/$1';
 /**
  * 작업 페이지(프로젝트)
  */
