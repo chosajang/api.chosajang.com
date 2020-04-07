@@ -89,8 +89,7 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
  * 2019.06.12, 조현희
  * 상수 정의
  */
-$db_config_name = 'default';
-define('DB_CONFIG_NAME',$db_config_name);
+define('DB_CONFIG_NAME','default');
 define('DOCUMENT_ROOT',$_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR);
 
 define('DATA_DIR', 'data' . DIRECTORY_SEPARATOR);

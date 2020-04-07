@@ -75,11 +75,11 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '192.168.0.1',
-	'username' => 'dev',
-    'password' => 'L@cal2019',
-    'database' => 'pipeline',
-    'dbdriver' => 'mysqli',
+	'hostname' => 'potion.myds.me',
+	'username' => 'cocoawork',
+  'password' => 'C@coaDev2020',
+  'database' => 'cocoawork',
+  'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),
@@ -92,31 +92,6 @@ $db['default'] = array(
 	'compress' => FALSE,
 	'stricton' => FALSE,
 	'failover' => array(),
-    'save_queries' => TRUE,
-    'port' =>'3306'
+  'save_queries' => TRUE,
+  'port' =>'3306'
 );
-
-$db['devserver'] = array(
-	'dsn'	=> '',
-	'hostname' => '192.168.1.10',
-	'username' => 'dev',
-    'password' => 'C@coa123',
-    'database' => 'pipeline',
-    'dbdriver' => 'mysqli',
-	'dbprefix' => '',
-	'pconnect' => FALSE,
-	'db_debug' => (ENVIRONMENT !== 'production'),
-	'cache_on' => FALSE,
-	'cachedir' => '',
-	'char_set' => 'utf8mb4',
-	'dbcollat' => 'utf8mb4_general_ci',
-	'swap_pre' => '',
-	'encrypt' => FALSE,
-	'compress' => FALSE,
-	'stricton' => FALSE,
-	'failover' => array(),
-    'save_queries' => TRUE,
-    'port' =>'3306'
-);
-
-
