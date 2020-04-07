@@ -1,0 +1,311 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+/**
+ * 관리자용 : 회원 API
+ */
+class User extends CI_Controller {
+
+    public $function_prefix = '';
+    public $callback;
+
+    public function __construct() {
+        parent::__construct();
+        $this->method_prefix = '_user_';
+        
+        $this->load->library('email');
+        // Model Load
+        $this->load->model('memberModel');
+        $this->load->model('fileModel');
+    }
+
+    /** remap
+     *
+     */
+    public function _remap($function) {
+        if ( $function == 'index' || $function == '' ) { $function = ''; }
+        $method = $this->method_prefix . $function;
+
+        /**
+         * view로 전달할 공통 정보
+         * - 요청 함수명
+         * - 요청 URI에서 파라메터를 제거한 URI 추출
+         */
+        $this->view_data['PAGE_NAME'] = $function;
+        $this->view_data['URI'] = $this->my_common_library->uri_noise_removal($function);
+
+        // 요청 컨트롤러가 존재하는 확인
+        if (method_exists($this, $method)) {
+            // 크로스 도메인 사용관련
+            header_cors();
+
+            // API 인증 목록
+            $auth_list = array('info','modify','password_modify');
+            $api_auth = in_array( $function, $auth_list );
+
+            if ( $api_auth === true ) {
+                // API 사용 인증 : 세션ID 확인
+                $session_check_result = $this->my_common_library->session_check(SITE_MANAGER);
+
+                if ( $session_check_result ) {
+                    // 요청 컨트롤러 호출
+                    $this->{$this->method_prefix.$function}();
+                    exit;
+                } else {
+                    $result['result'] = false;
+                    $result['error_code'] = AR_FAILURE[0];
+                    $result['message'] = AR_FAILURE[1];
+                }
+            } else {
+                // 요청 컨트롤러 호출
+                $this->{$this->method_prefix.$function}();
+                exit;
+            }
+        } else {
+            $result['result'] = false;
+            $result['error_code'] = AR_BAD_REQUEST[0];
+            $result['message'] = AR_BAD_REQUEST[1];
+        }
+        echo json_encode($result);
+    }//       EOF          public function _remap($function)
+
+    /** 
+     * 회원 생성(_user_create)
+     */
+    private function _user_create() {
+        $result = false;
+        // 파라메터
+        $id                 = $this->input->post('id');
+        $password           = $this->input->post('password');
+        $name               = $this->input->post('name');
+        $entry_date         = $this->input->post('entry_date');
+        $birthday           = $this->input->post('birthday');
+        $tel                = $this->input->post('tel');
+        $comment            = $this->input->post('comment');
+
+        $member_title_seq   = $this->input->post('title_seq');
+        $group_seq_list     = $this->input->post('group_seq');
+
+        // 회원 객체 생성
+        $member_info                      = array();
+        $member_info['ID']                = $id;
+        $member_info['PASSWORD']          = password_hash($password, PASSWORD_BCRYPT);
+        $member_info['NAME']              = $name;
+        $member_info['ENTRY_DATE']        = $entry_date;
+        $member_info['BIRTHDAY']          = $birthday;
+        $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
+        $member_info['TEL']               = $tel;
+        $member_info['COMMENT']           = nvl($comment);
+        $member_info['GROUP_SEQ_LIST']    = $group_seq_list;
+
+        // ID 중복 확인
+        $temp_member_info['ID'] = $id;
+        $password_info = $this->memberModel->selectMember_passwordInfo( $temp_member_info );
+
+        if ( $password_info === null ) {
+            // 회원가입 진행, 회원 정보 입력
+            $member_seq = $this->memberModel->insertMember($member_info);
+            if ( $member_seq ) {
+                // 프로필 이미지 등록
+                if (count($_FILES) > 0) {
+                    // 프로필 이미지 등록
+                    $file_seq_list = $this->my_common_library->file_upload(array(
+                        'MEMBER_SEQ' => $member_seq,
+                        'FILE' => 'profile_file'
+                    ));
+                    // 등록된 이미지를 회원정보로 등록
+                    $this->memberModel->updateMember([
+                        "SEQ" => $member_seq,
+                        "PROFILE_FILE_SEQ" => $file_seq_list[0],
+                    ]);
+                }
+
+                if( @!is_null($member_info['GROUP_SEQ_LIST']) ) {
+                    // 회원 팀 정보 입력
+                    $member_group_link_info = array();
+                    $member_group_link_info['MEMBER_SEQ'] = $member_seq;
+                    $member_group_link_info['GROUP_SEQ'] = $group_seq_list;
+                    $this->memberModel->updateMemberGroupLink($member_group_link_info);
+                }
+
+                $result['result'] = true;
+                $result['message'] = '회원 가입 완료';
+                $result['member_seq'] = $member_seq;
+            } else {
+                $result['result'] = false;
+                $result['error_code'] = AR_PROCESS_ERROR[0];
+                $result['message'] = AR_PROCESS_ERROR[1];
+            }
+        } else {
+            // 아이디 중복
+            $result['result'] = false;
+            $result['error_code'] = AR_PROCESS_ERROR[0];
+            $result['message'] = AR_PROCESS_ERROR[1] . ' - 중복된 아이디입니다';
+        }
+
+        echo json_encode($result);
+    }//     EOF     private function _user_create()
+
+    /** 
+     * 회원 정보 조회(_user_info)
+     */
+    private function _user_info() {
+        $member_seq = $this->input->get('req_member_seq');
+
+        $member_info = $this->memberModel->selectMember($member_seq, FALSE);
+
+        if ( !is_null($member_info) ) {
+            // 회원 그룹 정보 목록
+            $member_group_list = $this->memberModel->selectMemberGroupList($member_seq);
+            $member_info['MEMBER_GROUP_LIST'] = $member_group_list;
+            // 회원 프로필 사진 정보
+            $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
+            $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
+
+            $result['result'] = true;
+            $result['member_info'] = $member_info;
+        } else {
+            // 회원정보 조회 실패
+            $result['result'] = false;
+            $result['error_code'] = AR_PROCESS_ERROR[0];
+            $result['message'] = AR_PROCESS_ERROR[1];
+        }        
+
+        echo json_encode( $result );
+    }//     EOF     private function _user_info()
+    
+    /** 
+     * 회원 정보 수정(_user_modify)
+     */
+    private function _user_modify() {
+        $result = array();
+        $req_member_seq     = $this->input->post('req_member_seq');
+        $req_member_seq = nvl($req_member_seq);
+
+        $id                 = $this->input->post('id');
+        $id                 = nvl($id);
+        $new_password       = $this->input->post('new_password');
+        $new_password       = nvl($new_password);
+        $name               = $this->input->post('name');
+        $name               = nvl($name);
+        $entry_date         = $this->input->post('entry_date');
+        $birthday           = $this->input->post('birthday');
+        $tel                = $this->input->post('tel');
+        $comment            = $this->input->post('comment');
+
+        $member_title_seq   = $this->input->post('member_title_seq');
+        $member_status_seq  = $this->input->post('member_status_seq');
+        $group_seq_list     = $this->input->post('group_seq');
+        
+        if( $req_member_seq != "" && $id != "" && $name != "" ) {
+            // 회원 객체 생성
+            $member_info                      = array();
+            $member_info['SEQ']               = $req_member_seq;
+            $member_info['ID']                = $id;
+            $member_info['NAME']              = $name;
+            $member_info['ENTRY_DATE']        = $entry_date;
+            $member_info['BIRTHDAY']          = $birthday;
+            $member_info['TEL']               = $tel;
+            $member_info['COMMENT']           = $comment;
+            if( $new_password != '' ){
+                $member_info['PASSWORD']          = password_hash($new_password, PASSWORD_BCRYPT);
+            }
+            
+
+            $member_info['MEMBER_STATUS_SEQ'] = $member_status_seq;
+            $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
+            $member_info['GROUP_SEQ_LIST']    = $group_seq_list;
+            
+            // 회원 정보 수정
+            $updateMember_Result = $this->memberModel->updateMember($member_info);
+
+            if( $updateMember_Result ) {
+                if( !is_null($group_seq_list) ) {
+                    // 회원 그룹정보 수정
+                    $member_group_link_info = array();
+                    $member_group_link_info['MEMBER_SEQ'] = $req_member_seq;
+                    $member_group_link_info['GROUP_SEQ'] = $group_seq_list;
+
+                    $updateMemberGroupLink_result = $this->memberModel->updateMemberGroupLink($member_group_link_info);
+
+                    if ( !$updateMemberGroupLink_result ) {
+                        $result['result'] = false;
+                        $result['message'] = '회원 그룹정보 수정 실패';
+                    }
+                }
+                
+                // 프로필 이미지 등록
+                if (count($_FILES) > 0) {
+                    // 프로필 이미지 등록
+                    $file_seq_list = $this->my_common_library->file_upload(array(
+                        'MEMBER_SEQ' => $req_member_seq,
+                        'FILE' => 'profile_file'
+                    ));
+                    // 등록된 이미지를 회원정보로 등록
+                    $this->memberModel->updateMember([
+                        "SEQ" => $req_member_seq,
+                        "PROFILE_FILE_SEQ" => $file_seq_list[0],
+                    ]);
+                }
+                $result['result'] = true;
+                $result['message'] = '회원정보 업데이트 성공';
+            } else {
+                $result['result'] = false;
+                $result['error_code'] = AR_PROCESS_ERROR[0];
+                $result['message'] = AR_PROCESS_ERROR[1];
+            }
+        } else {
+            $result['result'] = false;
+            $result['error_code'] = AR_BAD_REQUEST[0];
+            $result['message'] = AR_BAD_REQUEST[1];
+        }
+
+        echo json_encode( $result );
+    }//     EOF     private function _user_modify()
+
+    /** 
+     * 회원 비밀번호 변경(_user_password_modify)
+     */
+    private function _user_password_modify() {
+        $result = array();
+
+        $member_seq = $this->input->post('member_seq');
+        $new_password = $this->input->post('new_password');
+        
+        // 비밀번호 변경
+        $updateMember_result = $this->memberModel->updateMember([
+            "SEQ" => $member_seq,
+            "PASSWORD" => password_hash($new_password, PASSWORD_BCRYPT),
+        ]);
+        if ( $updateMember_result ) {
+            $result['result'] = true;
+            $result['message'] = '비밀번호 변경 성공';
+        } else {
+            $result['result'] = false;
+            $result['error_code'] = AR_PROCESS_ERROR[0];
+            $result['message'] = AR_PROCESS_ERROR[1];
+        }
+
+        echo json_encode($result);
+    }//     EOF     private function _user_password_modify()
+
+    /**
+     * 회원 목록(_user_list)
+     */
+    private function _user_list() {
+        // "" 빈값으로 요청하면 모든 상태(대기,승인,반려,탈퇴)의 회원 목록을 조회한다
+        $member_status_seq = [1,2,3];
+        $member_list = $this->memberModel->selectMember_list( $member_status_seq );
+
+        if ( $member_list != null ) {
+            $result['result'] = true;
+            $result['data'] = $member_list;
+        } else {
+            $result['result'] = false;
+            $result['error_code'] = AR_PROCESS_ERROR[0];
+            $result['message'] = AR_PROCESS_ERROR[1];
+        }
+
+        echo json_encode($result);
+    }//     EOF     private function _user_list()
+
+}//            EOC       class Login extends CI_Controller
