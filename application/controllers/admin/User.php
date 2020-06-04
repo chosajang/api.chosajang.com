@@ -308,4 +308,4 @@ class User extends CI_Controller {
         echo json_encode($result);
     }//     EOF     private function _user_list()
 
-}//            EOC       class Login extends CI_Controller
+}//            EOC       class User extends CI_Controller

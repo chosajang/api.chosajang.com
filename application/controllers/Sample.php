@@ -17,7 +17,7 @@ class Sample extends CI_Controller {
           #$this->load->model('cglistModel');
           $this->load->model('fileModel');
      }
-     
+    
      /*
       * 
       */

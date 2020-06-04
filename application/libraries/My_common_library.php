@@ -8,8 +8,6 @@ class My_Common_Library {
         $this->CI =& get_instance(); // CodeIgniter 리소스 원본 할당
         $this->CI->load->model('memberModel');
         $this->CI->load->model('fileModel');
-        $this->CI->load->model('projectModel');
-        // $this->CI->load->model('commonModel');
     }
 
     /**
@@ -57,67 +55,6 @@ class My_Common_Library {
 
         return $result;
     }//     EOF     function session_check($grade=1)
-
-    /**
-     * 프로젝트 권한 체크
-     * - 회원 번호, 세션ID, 프로젝트 번호로 회원 정보를 조회
-     * - 호출한 함수의 등급(func_grade)과 회원의 등급 비교하여 요청여부 판단
-     *  > PMG_MANAGER : 1, PMG_ORDERER : 2, PMG_WORKER : 3
-     */
-    function project_auth_check($func_grade) {
-        $result['result'] = false;
-        $member_seq = $this->CI->input->get('member_seq');
-        $session_id = $this->CI->input->get('session_id');
-        $project_seq = $this->CI->input->get('project_seq');
-        
-        $member_seq = nvl($member_seq) != '' ? $member_seq : $this->CI->input->post('member_seq');
-        $session_id = nvl($session_id) != '' ? $session_id : $this->CI->input->post('session_id');
-        $project_seq = nvl($project_seq) != '' ? $project_seq : $this->CI->input->post('project_seq');
-        
-        if ( $member_seq != '' && $session_id != '' && $project_seq != '' ) {
-            $info = $this->CI->projectModel->selectProjectAuthority( $member_seq, $session_id, $project_seq );
-
-            if( !is_null( $info ) ) {
-                $project_member_grade_seq = (int)$info['PROJECT_MEMBER_GRADE_SEQ'];
-                $project_status_seq = (int)$info['PROJECT_STATUS_SEQ'];
-                /**
-                 * 프로젝트 매니저(MANAGER)
-                 * - 프로젝트 등급, 상태 관계없이 승인
-                 * 업무 지시자(ORDERER)
-                 * - 함수 요청 등급이 지시자/작업자용 이면서 프로젝트가 '진행'상태인 경우 승인
-                 * 작업자(WORKER)
-                 * - 함수 요청 등급이 작업자용 이면서 프로젝트가 '진행'상태인 경우 승인
-                 */
-                if( $project_member_grade_seq === PMG_MANAGER ) {
-                    $result['result'] = true;
-                    $result['project_authority_info'] = $info;
-                } else if( $project_member_grade_seq === PMG_ORDERER && ($func_grade === PMG_ORDERER || $func_grade === PMG_WORKER ) && $project_status_seq === PS_PROGRESS ) {
-                    $result['result'] = true;
-                    $result['project_authority_info'] = $info;
-                } else if( $project_member_grade_seq === PMG_WORKER && $func_grade === PMG_WORKER && $project_status_seq === PS_PROGRESS ) {
-                    $result['result'] = true;
-                    $result['project_authority_info'] = $info;
-                } else {
-                    $result['result'] = false;
-                    $result['error_code'] = AR_FAILURE[0];
-                    $result['message'] = AR_FAILURE[1];
-                    $result['message'] .= " - API 요청 등급이 아닙니다";
-                }
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_FAILURE[0];
-                $result['message'] = AR_FAILURE[1];
-                $result['message'] .= " - 해당 프로젝트에 인증정보가 없습니다";
-            }
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_OMISSION[0];
-            $result['message'] = AR_OMISSION[1];
-            $result['message'] .= " - API 인증요청에 필요한 정보가 부족합니다";
-        }//     EO      if ( nvl($member_seq,'') != '' && nvl($session_id,'') != '' && nvl($project_seq,'') != '' )
-
-        return $result;
-    }//     EOF     function project_auth_check($project_member_grade)
 
     /**
      * 파일 업로드 경로 생성기
