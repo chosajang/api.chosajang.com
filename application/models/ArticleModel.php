@@ -32,12 +32,9 @@ SELECT
         'Y'
 	)AS EDIT_YN,
     IF(A.AUTH_YN='Y',IFNULL(B.ADMIN_YN,'N'),IFNULL(B.ADMIN_YN,'N'))AS ADMIN_YN,
-    A.NOTICE_COUNT,
-    IFNULL(COUNT(C.SEQ),0) AS NOTICE_ARTICLE_COUNT,
-    IF( IFNULL(COUNT(C.SEQ),0) >= A.NOTICE_COUNT, 'N', 'Y')AS NOTICE_SET_YN
 FROM TB_BOARD A
     LEFT JOIN TB_BOARD_MEMBER_AUTH_LINK B ON B.BOARD_SEQ = A.SEQ AND B.MEMBER_SEQ = ?
-    LEFT JOIN TB_ARTICLE C ON C.BOARD_SEQ = A.SEQ AND C.USE_YN = 'Y' AND C.NOTICE_YN = 'Y'
+    LEFT JOIN TB_ARTICLE C ON C.BOARD_SEQ = A.SEQ AND C.USE_YN = 'Y'
 WHERE A.SEQ = ? ";
 
         $result = $this->db->query( $sql, array( $member_seq, $board_seq ) );
@@ -56,7 +53,6 @@ SELECT
     A.BOARD_SEQ,
     A.TITLE,
     A.CONTENT,
-    A.NOTICE_YN,
     A.ADD_DATE,
     A.MOD_DATE,
     B.SEQ AS MEMBER_SEQ,
@@ -89,7 +85,9 @@ AND A.SEQ = ? ";
         }
         // 게시물 전체 개수
         $sql = "
-SELECT COUNT(A.SEQ) AS COUNT FROM TB_ARTICLE A
+SELECT
+    COUNT(A.SEQ) AS COUNT 
+FROM TB_ARTICLE A
 WHERE A.BOARD_SEQ = ? 
 AND A.USE_YN = 'Y' " . $where_sql;
 
@@ -110,7 +108,6 @@ SELECT
     B.SEQ AS BOARD_SEQ,
     A.TITLE,
     C.NAME,
-    A.NOTICE_YN,
     A.ADD_DATE,
     A.MOD_DATE
 FROM TB_ARTICLE A
@@ -154,22 +151,21 @@ AND A.ARTICLE_SEQ = ? ";
     /**
      * 게시물 쓰기
      */
-    function insertArticle($board_seq, $member_seq, $title, $content, $notice_yn) {
+    function insertArticle($board_seq, $member_seq, $title, $content) {
         $param = array();
         array_push($param,$board_seq);
         array_push($param,$member_seq);
         array_push($param,$title);
         array_push($param,$content);
-        array_push($param,$notice_yn);
 
         $sql = "
-INSERT INTO TB_ARTICLE( BOARD_SEQ, MEMBER_SEQ, TITLE, CONTENT, NOTICE_YN )
-VALUES( ?, ?, ?, ?, ? ) ";
+INSERT INTO TB_ARTICLE( BOARD_SEQ, MEMBER_SEQ, TITLE, CONTENT )
+VALUES( ?, ?, ?, ? ) ";
 
         $this->db->query( $sql, $param );
 
         return $this->db->insert_id();
-    }//     EOF     function insertArticle($board_seq, $member_seq, $title, $content, $notice_yn)
+    }//     EOF     function insertArticle($board_seq, $member_seq, $title, $content)
 
     /**
      * 게시물 첨부파일 입력
@@ -187,17 +183,17 @@ VALUES( ?, ? ) ";
     /**
      * 게시물 수정
      */
-    function updateArticle($article_seq, $board_seq, $title, $content, $notice_yn) {
+    function updateArticle($article_seq, $board_seq, $title, $content) {
         $sql = "
 UPDATE TB_ARTICLE 
-    SET TITLE=?, CONTENT=?, NOTICE_YN = ?
+    SET TITLE=?, CONTENT=?
 WHERE SEQ = ?
 AND BOARD_SEQ = ? ";
 
-        $query_result = $this->db->query( $sql, array($title, $content, $notice_yn, $article_seq, $board_seq) );
+        $query_result = $this->db->query( $sql, array($title, $content, $article_seq, $board_seq) );
         
         return $query_result;
-    }//     EOF     function updateArticle($article_seq, $board_seq, $member_seq, $title, $content, $notice_yn)
+    }//     EOF     function updateArticle($article_seq, $board_seq, $member_seq, $title, $content)
 
     /**
      * 게시물 첨부파일 삭제

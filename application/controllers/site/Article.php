@@ -148,48 +148,36 @@ class Article extends CI_Controller {
         $member_seq = $this->input->post('member_seq');
         $title = $this->input->post('title');
         $content = $this->input->post('content');
-        $notice_yn = $this->input->post('notice_yn');
-
+        
         $result = array();
 
-        // 관리자 권한없이 NOTICE_YN 값을 보낸 경우, 무조건 N으로 처리한다
-        $board_info = $this->data['BOARD_INFO'];
-        $notice_yn = $board_info['ADMIN_YN'] == 'Y' ? nvl($notice_yn,'N') : 'N';
-        
-        if( ( $notice_yn == 'Y' && $board_info['NOTICE_SET_YN'] == 'Y' ) || $notice_yn == 'N' ) {
-            // 게시판 컨텐츠 입력
-            $article_seq = $this->articleModel->insertArticle($board_seq, $member_seq, $title, $content, $notice_yn);
+        // 게시판 컨텐츠 입력
+        $article_seq = $this->articleModel->insertArticle($board_seq, $member_seq, $title, $content, $notice_yn);
 
-            if ( $article_seq ) {
-                $upload_info = array(
-                    'MEMBER_SEQ'=>$member_seq,
-                    'FILE' => 'file'
-                );
-                $file_info_list = $this->my_common_library->file_upload( $upload_info );
-                $upload_file_count = 0;
-                foreach ( $file_info_list as $file_info ){
-                    // 게시판 내용 파일 입력
-                    $insertArticleFile_result = $this->articleModel->insertArticleFile($article_seq, $file_info['FILE_SEQ']);
-                    if ( $insertArticleFile_result ) { 
-                        $upload_file_count++;
-                    }
+        if ( $article_seq ) {
+            $upload_info = array(
+                'MEMBER_SEQ'=>$member_seq,
+                'FILE' => 'file'
+            );
+            $file_info_list = $this->my_common_library->file_upload( $upload_info );
+            $upload_file_count = 0;
+            foreach ( $file_info_list as $file_info ){
+                // 게시판 내용 파일 입력
+                $insertArticleFile_result = $this->articleModel->insertArticleFile($article_seq, $file_info['FILE_SEQ']);
+                if ( $insertArticleFile_result ) { 
+                    $upload_file_count++;
                 }
-                
-                $result['result'] = true;
-                $result['message'] = '게시판 컨텐츠 입력 완료';
-                $result['article_seq'] = $article_seq;
-                $result['upload_file_count'] = $upload_file_count;
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_PROCESS_ERROR[0];
-                $result['message'] = AR_PROCESS_ERROR[1];
             }
+            
+            $result['result'] = true;
+            $result['message'] = '게시판 컨텐츠 입력 완료';
+            $result['article_seq'] = $article_seq;
+            $result['upload_file_count'] = $upload_file_count;
         } else {
             $result['result'] = false;
             $result['error_code'] = AR_PROCESS_ERROR[0];
             $result['message'] = AR_PROCESS_ERROR[1];
-            $result['message'] .= ' - 공지사항 설정 최대개수를 넘었습니다';
-        }        
+        }
 
         echo json_encode($result);
     }//     EOF     private function _article_write()

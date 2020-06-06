@@ -33,7 +33,6 @@ SELECT
     ATTACHED_DOCUMENT_YN,
     PROJECT_YN,
     AUTH_YN,
-    NOTICE_COUNT,
     ADD_DATE,
     MOD_DATE
 FROM TB_BOARD
@@ -59,7 +58,6 @@ SELECT
     ATTACHED_DOCUMENT_YN,
     PROJECT_YN,
     AUTH_YN,
-    NOTICE_COUNT,
     ADD_DATE,
     MOD_DATE
 FROM TB_BOARD
@@ -96,13 +94,10 @@ SELECT
 		IF( IFNULL(B.ADMIN_YN,'N') = 'Y', 'Y', IFNULL(B.EDIT_YN,'N') ),
         'Y'
 	)AS EDIT_YN,
-    IF(A.AUTH_YN='Y',IFNULL(B.ADMIN_YN,'N'),IFNULL(B.ADMIN_YN,'N'))AS ADMIN_YN,
-    A.NOTICE_COUNT,
-    IFNULL(COUNT(C.SEQ),0) AS NOTICE_ARTICLE_COUNT,
-    IF( IFNULL(COUNT(C.SEQ),0) >= A.NOTICE_COUNT, 'N', 'Y')AS NOTICE_SET_YN
+    IF(A.AUTH_YN='Y',IFNULL(B.ADMIN_YN,'N'),IFNULL(B.ADMIN_YN,'N'))AS ADMIN_YN
 FROM TB_BOARD A
     LEFT JOIN TB_BOARD_MEMBER_AUTH_LINK B ON B.BOARD_SEQ = A.SEQ AND B.MEMBER_SEQ = ?
-    LEFT JOIN TB_ARTICLE C ON C.BOARD_SEQ = A.SEQ AND C.USE_YN = 'Y' AND C.NOTICE_YN = 'Y'
+    LEFT JOIN TB_ARTICLE C ON C.BOARD_SEQ = A.SEQ AND C.USE_YN = 'Y'
 WHERE A.SEQ = ? ";
 
         $result = $this->db->query( $sql, array( $member_seq, $board_seq ) );
@@ -114,12 +109,12 @@ WHERE A.SEQ = ? ";
      * 게시판 생성
      * - 일반 게시판용 생성 함수
      */
-    function insertBoard($name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn='N', $project_yn='N', $notice_count=3) {
+    function insertBoard($name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn='N', $project_yn='N') {
         $sql = "
-INSERT INTO TB_BOARD( NAME, COMMENT_YN, ATTACHED_FILE_YN, ATTACHED_DOCUMENT_YN, AUTH_YN, PROJECT_YN, NOTICE_COUNT )
-VALUES( ?, ?, ?, ?, ?, ?, ? ) ";
+INSERT INTO TB_BOARD( NAME, COMMENT_YN, ATTACHED_FILE_YN, ATTACHED_DOCUMENT_YN, AUTH_YN, PROJECT_YN )
+VALUES( ?, ?, ?, ?, ?, ? ) ";
 
-        $this->db->query( $sql, array($name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn, $project_yn, $notice_count) );
+        $this->db->query( $sql, array($name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn, $project_yn) );
 
         return $this->db->insert_id();
     }//     EOF     function insertBoard($name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn='N', $project_yn='N')
@@ -127,7 +122,7 @@ VALUES( ?, ?, ?, ?, ?, ?, ? ) ";
     /**
      * 게시판 수정
      */
-    function updateBoard($board_seq, $name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn='N', $notice_count=3) {
+    function updateBoard($board_seq, $name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn='N') {
         $sql = "
 UPDATE TB_BOARD
     SET
@@ -135,11 +130,10 @@ UPDATE TB_BOARD
         COMMENT_YN = ?,
         ATTACHED_FILE_YN = ?,
         ATTACHED_DOCUMENT_YN = ?,
-        AUTH_YN = ?,
-        NOTICE_COUNT = ?
+        AUTH_YN = ?
 WHERE SEQ = ? ";
 
-        $query_result = $this->db->query( $sql, array($name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn, $notice_count, $board_seq) );
+        $query_result = $this->db->query( $sql, array($name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn, $board_seq) );
 
         return $query_result;
     }//     EOF     function updateBoard($board_seq, $name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn='N')
