@@ -75,7 +75,7 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'potion.myds.me',
+	'hostname' => '172.30.1.10',
 	'username' => 'cocoawork',
   'password' => 'C@coaDev2020',
   'database' => 'cocoawork',
