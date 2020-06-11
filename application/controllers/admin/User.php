@@ -83,7 +83,6 @@ class User extends CI_Controller {
         $comment            = $this->input->post('comment');
 
         $member_title_seq   = $this->input->post('title_seq');
-        $group_seq_list     = $this->input->post('group_seq');
 
         // 회원 객체 생성
         $member_info                      = array();
@@ -95,7 +94,6 @@ class User extends CI_Controller {
         $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
         $member_info['TEL']               = $tel;
         $member_info['COMMENT']           = nvl($comment);
-        $member_info['GROUP_SEQ_LIST']    = $group_seq_list;
 
         // ID 중복 확인
         $temp_member_info['ID'] = $id;
@@ -117,14 +115,6 @@ class User extends CI_Controller {
                         "SEQ" => $member_seq,
                         "PROFILE_FILE_SEQ" => $file_seq_list[0],
                     ]);
-                }
-
-                if( @!is_null($member_info['GROUP_SEQ_LIST']) ) {
-                    // 회원 팀 정보 입력
-                    $member_group_link_info = array();
-                    $member_group_link_info['MEMBER_SEQ'] = $member_seq;
-                    $member_group_link_info['GROUP_SEQ'] = $group_seq_list;
-                    $this->memberModel->updateMemberGroupLink($member_group_link_info);
                 }
 
                 $result['result'] = true;
@@ -154,9 +144,6 @@ class User extends CI_Controller {
         $member_info = $this->memberModel->selectMember($member_seq, FALSE);
 
         if ( !is_null($member_info) ) {
-            // 회원 그룹 정보 목록
-            $member_group_list = $this->memberModel->selectMemberGroupList($member_seq);
-            $member_info['MEMBER_GROUP_LIST'] = $member_group_list;
             // 회원 프로필 사진 정보
             $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
             $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
@@ -194,7 +181,6 @@ class User extends CI_Controller {
 
         $member_title_seq   = $this->input->post('member_title_seq');
         $member_status_seq  = $this->input->post('member_status_seq');
-        $group_seq_list     = $this->input->post('group_seq');
         
         if( $req_member_seq != "" && $id != "" && $name != "" ) {
             // 회원 객체 생성
@@ -213,26 +199,11 @@ class User extends CI_Controller {
 
             $member_info['MEMBER_STATUS_SEQ'] = $member_status_seq;
             $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
-            $member_info['GROUP_SEQ_LIST']    = $group_seq_list;
             
             // 회원 정보 수정
             $updateMember_Result = $this->memberModel->updateMember($member_info);
 
             if( $updateMember_Result ) {
-                if( !is_null($group_seq_list) ) {
-                    // 회원 그룹정보 수정
-                    $member_group_link_info = array();
-                    $member_group_link_info['MEMBER_SEQ'] = $req_member_seq;
-                    $member_group_link_info['GROUP_SEQ'] = $group_seq_list;
-
-                    $updateMemberGroupLink_result = $this->memberModel->updateMemberGroupLink($member_group_link_info);
-
-                    if ( !$updateMemberGroupLink_result ) {
-                        $result['result'] = false;
-                        $result['message'] = '회원 그룹정보 수정 실패';
-                    }
-                }
-                
                 // 프로필 이미지 등록
                 if (count($_FILES) > 0) {
                     // 프로필 이미지 등록

@@ -87,7 +87,6 @@ class User extends CI_Controller {
         $comment            = $this->input->post('comment');
 
         $member_title_seq   = $this->input->post('title_seq');
-        $group_seq_list     = $this->input->post('group_seq');
 
         // 회원 객체 생성
         $member_info                      = array();
@@ -99,7 +98,6 @@ class User extends CI_Controller {
         $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
         $member_info['TEL']               = $tel;
         $member_info['COMMENT']           = nvl($comment);
-        $member_info['GROUP_SEQ_LIST']    = $group_seq_list;
 
         // ID 중복 확인
         $temp_member_info['ID'] = $id;
@@ -125,14 +123,6 @@ class User extends CI_Controller {
                 }
             }
 
-            if ( @!is_null($member_info['GROUP_SEQ_LIST']) ) {
-                // 회원 팀 정보 입력
-                $member_group_link_info = array();
-                $member_group_link_info['MEMBER_SEQ'] = $member_seq;
-                $member_group_link_info['GROUP_SEQ'] = $group_seq_list;
-                $this->memberModel->updateMemberGroupLink($member_group_link_info);
-            }
-
             if ( $member_seq ) {
                 $result['result'] = true;
                 $result['message'] = '회원 가입 완료';
@@ -155,31 +145,6 @@ class User extends CI_Controller {
     }//     EOF     private function _user_create()
 
     /** 
-     * 회원 그룹 목록(_user_group_list)
-     */
-    private function _user_group_list() {
-        $req_info = array();
-
-        $p_seq = $this->input->get('p_seq');
-        $depth_no = $this->input->get('depth_no');
-
-        if( nvl($p_seq) !== '' ){
-            $req_info['P_SEQ'] = $p_seq;
-        }
-        if( nvl($depth_no) !== '' ){
-            $req_info['DEPTH_NO'] = $depth_no;
-        }
-
-        $group_list = $this->memberModel->selectGroup_list($req_info);
-        
-        $result['result'] = true;
-        $result['group_list'] = $group_list;
-
-        echo json_encode( $result );
-    }//     EOF     private function _user_group_list()
-
-
-    /** 
      * 회원 정보 조회(_user_info)
      */
     private function _user_info() {
@@ -188,15 +153,12 @@ class User extends CI_Controller {
         $member_info = $this->memberModel->selectMember( $req_member_seq, FALSE );
 
         if ( !is_null($member_info) ) {
-            // 회원 그룹 정보 목록
-            $member_group_list = $this->memberModel->selectMemberGroupList($req_member_seq);
             // 회원 프로필 사진 정보
             $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
             $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
 
             $result['result'] = true;
             $result['member_info'] = $member_info;
-            $result['member_group_list'] = $member_group_list;
         } else {
             // 회원정보 조회 실패
             $result['result'] = false;
@@ -239,16 +201,12 @@ class User extends CI_Controller {
                         $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
                         $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
 
-                        // 회원 그룹 정보 조회
-                        $member_group_list = $this->memberModel->selectMemberGroupList($member_info['SEQ']);
-
                         $member_info['SESSION_ID'] = $session_id;
 
                         // 결과값 생성
                         $result['result'] = true;
                         $result['message'] = '로그인 정보가 확인되었습니다';
                         $result['member_info'] = $member_info;
-                        $result['member_group_list'] = $member_group_list;
                     } else {
                         $result['result'] = false;
                         $result['error_code'] = AR_FAILURE[0];
@@ -289,15 +247,12 @@ class User extends CI_Controller {
         if( !is_null($member_seq) ){
             $member_info = $this->memberModel->selectMember( $member_seq, TRUE );
         
-            // 회원 그룹 정보 목록
-            $member_group_list = $this->memberModel->selectMemberGroupList($member_seq);
             // 회원 프로필 사진 정보
             $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
             $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
 
             $result['result'] = true;
             $result['member_info'] = $member_info;
-            $result['member_group_list'] = $member_group_list;
         } else {
             $result['result'] = false;
             $result['error_code'] = AR_BAD_REQUEST[0];
