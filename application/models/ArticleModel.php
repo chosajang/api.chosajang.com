@@ -9,7 +9,7 @@ class ArticleModel extends CI_Model {
     /**
      * 게시판 정보
      */
-    function selectBoard( $board_seq, $member_seq ) {
+    function selectBoard( $board_seq ) {
         $sql = "
 SELECT
     A.SEQ,
@@ -18,26 +18,11 @@ SELECT
     A.COMMENT_YN,
     A.ATTACHED_FILE_YN,
     A.ATTACHED_DOCUMENT_YN,
-    A.PROJECT_YN, 
-    A.AUTH_YN,
-    IF(	A.AUTH_YN = 'Y',
-		IF( IFNULL(B.ADMIN_YN,'N') = 'Y', 
-			'Y',
-            IF( IFNULL(B.EDIT_YN,'N') = 'Y', 'Y', IFNULL(B.READ_YN,'Y') )
-		),
-        'Y'
-	)AS READ_YN,
-    IF( A.AUTH_YN = 'Y',
-		IF( IFNULL(B.ADMIN_YN,'N') = 'Y', 'Y', IFNULL(B.EDIT_YN,'N') ),
-        'Y'
-	)AS EDIT_YN,
-    IF(A.AUTH_YN='Y',IFNULL(B.ADMIN_YN,'N'),IFNULL(B.ADMIN_YN,'N'))AS ADMIN_YN,
+    A.PROJECT_YN
 FROM TB_BOARD A
-    LEFT JOIN TB_BOARD_MEMBER_AUTH_LINK B ON B.BOARD_SEQ = A.SEQ AND B.MEMBER_SEQ = ?
-    LEFT JOIN TB_ARTICLE C ON C.BOARD_SEQ = A.SEQ AND C.USE_YN = 'Y'
 WHERE A.SEQ = ? ";
 
-        $result = $this->db->query( $sql, array( $member_seq, $board_seq ) );
+        $result = $this->db->query( $sql, array( $board_seq ) );
 
         return $result->row_array();
     }//     EOF     function selectBoard( $board_seq )
@@ -72,35 +57,11 @@ AND A.SEQ = ? ";
     /**
      * 게시물 목록(BOARD LIST)
      */
-    function selectArticle_list($board_seq, $limit_start, $limit_end, $search) {
-        $limit_sql = "";
-        $where_sql = "";
+    function selectArticle_list( $board_seq ) {
         $param = array();
         array_push($param,$board_seq);
 
         $result_info = array();
-
-        if ( $search !== "" ) {
-            $where_sql = " AND A.TITLE LIKE '%{$search}%'";
-        }
-        // 게시물 전체 개수
-        $sql = "
-SELECT
-    COUNT(A.SEQ) AS COUNT 
-FROM TB_ARTICLE A
-WHERE A.BOARD_SEQ = ? 
-AND A.USE_YN = 'Y' " . $where_sql;
-
-        $result = $this->db->query( $sql, $param );
-        $count_result = $result->row_array();
-        $result_info['ARTICLE_COUNT'] = $count_result['COUNT'];
-        
-        // 게시물 목록
-        if( $limit_end !== 0 ) {
-            $limit_sql = " LIMIT ?, ? ";
-            array_push($param,$limit_start);
-            array_push($param,$limit_end);
-        }
 
         $sql = "
 SELECT
@@ -114,13 +75,13 @@ FROM TB_ARTICLE A
 INNER JOIN TB_BOARD B ON B.SEQ = A.BOARD_SEQ
 INNER JOIN TB_MEMBER C ON C.SEQ = A.MEMBER_SEQ
 WHERE B.SEQ = ?
-AND A.USE_YN = 'Y' " . $where_sql . $limit_sql;
+AND A.USE_YN = 'Y' ";
 
         $result = $this->db->query( $sql, $param );
         $result_info['ARTICLE_LIST'] = $result->result_array();
         
         return $result_info;
-    }//     EOF     function selectArticle_list($board_seq, $limit_start, $limit_end, $search)
+    }//     EOF     function selectArticle_list ($board_seq)
 
     /**
      * 게시물 첨부파일 조회

@@ -43,36 +43,18 @@ class Article extends CI_Controller {
             // API 사용 인증 : 세션ID 확인
             $session_check_result = $this->my_common_library->session_check();
 
-            if ( $session_check_result ) {
-                // 게시판 권한 체크
-                $article_read = array('list','read','comment_list','file_download');
-                $article_edit = array('write','modify','delete','contents_file_upload');
-                $comment_edit = array('comment_write','comment_modify','comment_delete');
-                
+            if ( $session_check_result ) {                
                 $board_seq = $this->my_common_library->get_post('board_seq');
                 $member_seq = $this->my_common_library->get_post('member_seq');
                 if( $board_seq != "" && $member_seq != "" ) {
                     // 게시판 정보 조회
-                    $board_info = $this->boardModel->selectBoardForMember( $board_seq, $member_seq );
+                    $board_info = $this->boardModel->selectBoardForMember( $board_seq );
                     if( @!is_null($board_info) && $board_info['SEQ'] != "" ) {
                         // 게시판 정보 전역변수에 할당
                         $this->data['BOARD_INFO'] = $board_info;
-                        if( $board_info['ADMIN_YN'] == 'Y' ) {
-                            // 요청 컨트롤러 호출
-                            $this->{$this->method_prefix.$function}();
-                            exit;
-                        } else if( ( in_array( $function, $article_read ) && $board_info['READ_YN'] == 'Y' )
-                            || ( in_array( $function, $article_edit ) && $board_info['EDIT_YN'] == 'Y' )
-                            || ( in_array( $function, $comment_edit ) && $board_info['COMMENT_YN'] == 'Y' ) ) {
-                            // 요청 컨트롤러 호출
-                            $this->{$this->method_prefix.$function}();
-                            exit;
-                        } else {
-                            $result['result'] = false;
-                            $result['error_code'] = AR_FAILURE[0];
-                            $result['message'] = AR_FAILURE[1];
-                            $result['message'] .= " - API 사용권한이 없습니다";
-                        }
+                        // 요청 컨트롤러 호출
+                        $this->{$this->method_prefix.$function}();
+                        exit;
                     } else {
                         $result['result'] = false;
                         $result['error_code'] = AR_EMPTY_REQUEST[0];
@@ -102,31 +84,10 @@ class Article extends CI_Controller {
      */
     private function _article_list() {
         $board_seq = $this->input->get('board_seq');
-        $latest = $this->input->get('latest');
-        $page = $this->input->get('page');
-        $limit = $this->input->get('limit');
-        $search = $this->input->get('search');
 
         if ( is_numeric($board_seq) ) {
             // 게시물 목록 조회
-            $latest = strcasecmp($latest, 'Y') ? false : true;
-            if ( $latest ) {
-                $page = 1;
-                $limit = 5;
-                $limit_start = 0;
-            } else {
-                // page가 숫자가 아니거나 값이 없는경우, 게시물 전체 검색으로 간주
-                if( !is_numeric($page) && nvl($limit) === '' ){
-                    $limit = 0;
-                    $limit_start = 0;
-                } else {
-                    $page = !is_numeric($page) ? 1 : $page;
-                    $limit = (int)nvl($limit, 10);
-                    $limit_start = ($page - 1) * $limit;
-                }
-            }
-
-            $article_list = $this->articleModel->selectArticle_list($board_seq, $limit_start, $limit, $search);
+            $article_list = $this->articleModel->selectArticle_list( $board_seq );
             $article_list['BOARD_INFO'] = $this->data['BOARD_INFO'];
 
             $result['result'] = true;

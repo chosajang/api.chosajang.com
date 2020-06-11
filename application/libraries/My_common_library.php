@@ -43,12 +43,6 @@ class My_Common_Library {
                 } else if ( $member_grade_seq === USER && $req_grade === USER ) {
                     // 일반 회원
                     $result = true;
-                } else if ( $member_grade_seq === SITE_MANAGER && ($req_grade === USER || $req_grade === SITE_MANAGER ) ) {
-                    // 사이트 매니저
-                    $result = true;
-                } else if ( $member_grade_seq === PROJECT_MANAGER && ($req_grade === USER || $req_grade === PROJECT_MANAGER ) ) {
-                    // 프로젝트 매니저
-                    $result = true;
                 }
             }
         }
