@@ -53,7 +53,7 @@ SELECT
     A.SEQ,
     A.ID,
     A.NAME,
-    A.TEL,
+    A.TITLE,
     A.BIRTHDAY,
     A.COMMENT,
     IFNULL(DATE_FORMAT(A.ADD_DATE,'%Y-%m-%d'),'')AS ADD_DATE,
@@ -63,13 +63,10 @@ SELECT
     A.PROFILE_FILE_SEQ,
     A.MEMBER_STATUS_SEQ,
     AB.NAME AS MEMBER_STATUS_NAME,
-    A.MEMBER_TITLE_SEQ,
-    AC.NAME AS MEMBER_TITLE_NAME,
     A.MEMBER_GRADE_SEQ,
     AD.NAME AS MEMBER_GRADE_NAME
 FROM TB_MEMBER A
     INNER JOIN TB_MEMBER_STATUS AB ON A.MEMBER_STATUS_SEQ = AB.SEQ /* 회원상태 */
-    INNER JOIN TB_MEMBER_TITLE AC ON A.MEMBER_TITLE_SEQ = AC.SEQ /* 회원직함 */
     INNER JOIN TB_MEMBER_GRADE AD ON A.MEMBER_GRADE_SEQ = AD.SEQ /* 회원등급 */
 WHERE A.SEQ = ? ";
      
@@ -125,6 +122,7 @@ SELECT
     A.SEQ,
     A.ID,
     A.NAME,
+    A.TITLE,
     A.COMMENT,
     IFNULL(DATE_FORMAT(A.ENTRY_DATE,'%Y-%m-%d'),'')AS ENTRY_DATE,
     IF ( ISNULL(A.PROFILE_FILE_SEQ),
@@ -137,14 +135,11 @@ SELECT
     AB.SEQ AS MEMBER_STATUS_SEQ,
     AB.NAME AS MEMBER_STATUS_NAME,
     AC.SEQ AS MEMBER_GRADE_SEQ,
-    AC.NAME AS MEMBER_GRADE_NAME,
-    AD.SEQ AS MEMBER_TITLE_SEQ,
-    AD.NAME AS MEMBER_TITLE_NAME
+    AC.NAME AS MEMBER_GRADE_NAME
 FROM
     TB_MEMBER A
         INNER JOIN TB_MEMBER_STATUS AB ON AB.SEQ = A.MEMBER_STATUS_SEQ AND AB.USE_YN = 'Y'
         INNER JOIN TB_MEMBER_GRADE AC ON AC.SEQ = A.MEMBER_GRADE_SEQ AND AC.USE_YN = 'Y'
-        INNER JOIN TB_MEMBER_TITLE AD ON AD.SEQ = A.MEMBER_TITLE_SEQ AND AD.USE_YN = 'Y'
         LEFT JOIN TB_FILE B ON A.PROFILE_FILE_SEQ = B.SEQ
     " . $where_sql . "
 ORDER BY A.SEQ ASC ";
@@ -155,23 +150,9 @@ ORDER BY A.SEQ ASC ";
         return $member_list;
     }//     EOF     function selectMember_list( $member_status_seq )
 
-    
     /*
-    * 5. 매니저카운트(selectManagerCount)
-    */
-    function selectManagerCount() {
-        $sql = "
-SELECT COUNT(SEQ) AS COUNT FROM TB_MEMBER WHERE MEMBER_GRADE_SEQ = 2 ";
-        
-        $result = $this->db->query($sql);
-        $result_array = $result->row_array();
-        
-        return $result_array['COUNT'];
-    }//       EOF       function selectManagerCount()
-    
-    /*
-    * 6. 회원 상태 목록 조회(selectMemberStatusList)
-    */
+     * 회원 상태 목록 조회(selectMemberStatusList)
+     */
     function selectMemberStatusList() {
         $sql = "
 SELECT
@@ -187,9 +168,9 @@ ORDER BY SEQ ASC ";
         return $member_status_list;
     }//       EOF       function selectMemberStatusList()
     
-    /*
-    * 7. 회원 등급 목록 조회(selectMemberGradeList)
-    */
+    /**
+     * 회원 등급 목록 조회(selectMemberGradeList)
+     */
     function selectMemberGradeList() {
         $sql = "
 SELECT
@@ -204,24 +185,6 @@ ORDER BY SEQ ASC ";
         
         return $member_grade_list;
     }//       EOF       function selectMemberGradeList()
-
-    /*
-    * 8. 회원 직함 목록 조회(selectMemberTitle_list)
-    */
-    function selectMemberTitle_list() {
-        $sql = "
-SELECT
-    SEQ,
-    NAME
-FROM TB_MEMBER_TITLE
-WHERE USE_YN = 'Y'
-ORDER BY SORT_NO ASC ";
-        
-        $result = $this->db->query( $sql );
-        $member_title_list = $result->result_array();
-        
-        return $member_title_list;
-    }//       EOF       function selectMemberTitle_list
 
     /**
      * 회원 등급목록 조회
@@ -257,7 +220,6 @@ AND SET_YN = 'Y' ";
             $member_info['ID'],
             $member_info['PASSWORD'],
             $member_info['NAME'],
-            $member_info['TEL'],
             $member_info['BIRTHDAY'],
             $member_info['COMMENT']
         );
@@ -277,15 +239,10 @@ AND SET_YN = 'Y' ";
             $value_sql .= ', ?';
             array_push($param,$member_info['MEMBER_STATUS_SEQ']);
         }
-        if ( @!is_null($member_info['MEMBER_TITLE_SEQ']) && nvl($member_info['MEMBER_TITLE_SEQ']) !== ''  ) {
-            $column_sql .= ', MEMBER_TITLE_SEQ';
-            $value_sql .= ', ?';
-            array_push($param,$member_info['MEMBER_TITLE_SEQ']);
-        }
 
         $sql = "
-INSERT INTO TB_MEMBER(ID,PASSWORD,NAME,TEL,BIRTHDAY,COMMENT" . $column_sql . ")
-VALUES( ?, ?, ?, ?, ?, ?" . $value_sql . " ) ";
+INSERT INTO TB_MEMBER(ID,PASSWORD,NAME,BIRTHDAY,COMMENT" . $column_sql . ")
+VALUES( ?, ?, ?, ?, ?" . $value_sql . " ) ";
 
         $result = $this->db->query( $sql, $param );
         
@@ -336,12 +293,6 @@ WHERE SEQ = ? ";
             array_push($param,$member_info['NAME']);
             $query_exec = true;
         }
-        if ( @!is_null($member_info['TEL']) ) {
-            $temp_sql = 'TEL = ?';
-            $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
-            array_push($param,$member_info['TEL']);
-            $query_exec = true;
-        }
         if ( @!is_null($member_info['BIRTHDAY']) ) {
             $temp_sql = 'BIRTHDAY = ?';
             $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
@@ -370,12 +321,6 @@ WHERE SEQ = ? ";
             $temp_sql = 'MEMBER_STATUS_SEQ = ?';
             $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
             array_push($param,$member_info['MEMBER_STATUS_SEQ']);
-            $query_exec = true;
-        }
-        if ( @!is_null($member_info['MEMBER_TITLE_SEQ']) ) {
-            $temp_sql = 'MEMBER_TITLE_SEQ = ?';
-            $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
-            array_push($param,$member_info['MEMBER_TITLE_SEQ']);
             $query_exec = true;
         }
         if ( @!is_null($member_info['MEMBER_GRADE_SEQ']) ) {
