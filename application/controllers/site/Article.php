@@ -39,37 +39,28 @@ class Article extends CI_Controller {
         if (method_exists($this, $method)) {
             // 크로스 도메인 사용관련
             header_cors();
-            
-            // API 사용 인증 : 세션ID 확인
-            $session_check_result = $this->my_common_library->session_check();
 
-            if ( $session_check_result ) {                
-                $board_seq = $this->my_common_library->get_post('board_seq');
-                $member_seq = $this->my_common_library->get_post('member_seq');
-                if( $board_seq != "" && $member_seq != "" ) {
-                    // 게시판 정보 조회
-                    $board_info = $this->boardModel->selectBoardForMember( $board_seq );
-                    if( @!is_null($board_info) && $board_info['SEQ'] != "" ) {
-                        // 게시판 정보 전역변수에 할당
-                        $this->data['BOARD_INFO'] = $board_info;
-                        // 요청 컨트롤러 호출
-                        $this->{$this->method_prefix.$function}();
-                        exit;
-                    } else {
-                        $result['result'] = false;
-                        $result['error_code'] = AR_EMPTY_REQUEST[0];
-                        $result['message'] = AR_EMPTY_REQUEST[1];
-                        $result['message'] .= " - 게시판 정보가 없습니다";
-                    }
+            $board_seq = $this->my_common_library->get_post('board_seq');
+            $member_seq = $this->my_common_library->get_post('member_seq');
+            if( $board_seq != "" && $member_seq != "" ) {
+                // 게시판 정보 조회
+                $board_info = $this->boardModel->selectBoardForMember( $board_seq );
+                if( @!is_null($board_info) && $board_info['SEQ'] != "" ) {
+                    // 게시판 정보 전역변수에 할당
+                    $this->data['BOARD_INFO'] = $board_info;
+                    // 요청 컨트롤러 호출
+                    $this->{$this->method_prefix.$function}();
+                    exit;
                 } else {
                     $result['result'] = false;
-                    $result['error_code'] = AR_BAD_REQUEST[0];
-                    $result['message'] = AR_BAD_REQUEST[1];
+                    $result['error_code'] = AR_EMPTY_REQUEST[0];
+                    $result['message'] = AR_EMPTY_REQUEST[1];
+                    $result['message'] .= " - 게시판 정보가 없습니다";
                 }
             } else {
                 $result['result'] = false;
-                $result['error_code'] = AR_FAILURE[0];
-                $result['message'] = AR_FAILURE[1];
+                $result['error_code'] = AR_BAD_REQUEST[0];
+                $result['message'] = AR_BAD_REQUEST[1];
             }
         } else {
             $result['result'] = false;
@@ -100,132 +91,7 @@ class Article extends CI_Controller {
 
         echo json_encode($result);
     }//     EOF     private function _article_list()
-
-    /**
-     * 게시물 작성
-     */
-    private function _article_write() {
-        $board_seq = $this->input->post('board_seq');
-        $member_seq = $this->input->post('member_seq');
-        $title = $this->input->post('title');
-        $content = $this->input->post('content');
-        
-        $result = array();
-
-        // 게시판 컨텐츠 입력
-        $article_seq = $this->articleModel->insertArticle($board_seq, $member_seq, $title, $content, $notice_yn);
-
-        if ( $article_seq ) {
-            $upload_info = array(
-                'MEMBER_SEQ'=>$member_seq,
-                'FILE' => 'file'
-            );
-            $file_info_list = $this->my_common_library->file_upload( $upload_info );
-            $upload_file_count = 0;
-            foreach ( $file_info_list as $file_info ){
-                // 게시판 내용 파일 입력
-                $insertArticleFile_result = $this->articleModel->insertArticleFile($article_seq, $file_info['FILE_SEQ']);
-                if ( $insertArticleFile_result ) { 
-                    $upload_file_count++;
-                }
-            }
-            
-            $result['result'] = true;
-            $result['message'] = '게시판 컨텐츠 입력 완료';
-            $result['article_seq'] = $article_seq;
-            $result['upload_file_count'] = $upload_file_count;
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_PROCESS_ERROR[0];
-            $result['message'] = AR_PROCESS_ERROR[1];
-        }
-
-        echo json_encode($result);
-    }//     EOF     private function _article_write()
-
-    /**
-     * 게시물 수정
-     */
-    private function _article_modify() {
-        $board_seq = $this->input->post('board_seq');
-        $article_seq = $this->input->post('article_seq');
-        $member_seq = $this->input->post('member_seq');
-        $title = $this->input->post('title');
-        $content = $this->input->post('content');
-        $delete_file_seq_list = $this->input->post('delete_file_seq');
-        $notice_yn = $this->input->post('notice_yn');
-
-        // 관리자 권한없이 NOTICE_YN 값을 보낸 경우, 무조건 N으로 처리한다
-        $board_info = $this->data['BOARD_INFO'];
-        $notice_yn = $board_info['ADMIN_YN'] == 'Y' ? nvl($notice_yn,'N') : 'N';
-
-        $result = array();
-        
-        if ( is_numeric($article_seq) && nvl($title,'') != '' ) {
-            $article_info = $this->articleModel->selectArticle( $article_seq );    
-            if( !is_null($article_info) ) {
-                if( $article_info['NOTICE_YN'] == 'Y' 
-                    || ( $notice_yn == 'Y' && $board_info['NOTICE_SET_YN'] == 'Y' ) 
-                    || $notice_yn == 'N' ) {
-                    if( $article_info['MEMBER_SEQ'] == $member_seq || $this->data['BOARD_INFO']['ADMIN_YN'] == 'Y' ) {
-                        // 게시물 수정
-                        $updateArticle_result = $this->articleModel->updateArticle($article_seq, $board_seq, $title, $content, $notice_yn);
-                        if ( $updateArticle_result ){
-                            // 요청 첨부파일 삭제
-                            if ( is_array($delete_file_seq_list) ) {
-                                $this->articleModel->deleteArticleFile($delete_file_seq_list);
-                            }
-                            // 신규 첨부파일 업로드
-                            $upload_info = array(
-                                'MEMBER_SEQ'=>$member_seq,
-                                'FILE' => 'file'
-                            );
-                            $file_info_list = $this->my_common_library->file_upload( $upload_info );
-
-                            $upload_file_count = 0;
-                            foreach ( $file_info_list as $file_info ){
-                                // 게시판 내용 파일 입력
-                                $insertArticleFile_result = $this->articleModel->insertArticleFile($article_seq, $file_info['FILE_SEQ']);
-                                if ( $insertArticleFile_result ) { 
-                                    $upload_file_count++; 
-                                }
-                            }
-
-                            $result['result'] = true;
-                            $result['message'] = '게시물이 수정되었습니다';
-                            $result['upload_file_count'] = $upload_file_count;
-                        } else {
-                            $result['result'] = false;
-                            $result['error_code'] = AR_PROCESS_ERROR[0];
-                            $result['message'] = AR_PROCESS_ERROR[1];
-                        }
-                    } else {
-                        $result['result'] = false;
-                        $result['error_code'] = AR_PROCESS_ERROR[0];
-                        $result['message'] = AR_PROCESS_ERROR[1];
-                        $result['message'] .= ' - 게시물 작성자가 아니거나 관리자 권한 없습니다';
-                    }
-                } else {
-                    $result['result'] = false;
-                    $result['error_code'] = AR_PROCESS_ERROR[0];
-                    $result['message'] = AR_PROCESS_ERROR[1];
-                    $result['message'] .= ' - 공지사항 설정 최대개수를 넘었습니다';
-                }
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_EMPTY_REQUEST[0];
-                $result['message'] = AR_EMPTY_REQUEST[1];
-                $result['message'] .= ' - 삭제되었거나 없는 게시물입니다';
-            }
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }
-
-        echo json_encode($result);
-    }//     EOF     private function _article_modify()
-
+    
     /**
      * 게시물 조회
      */
@@ -240,18 +106,8 @@ class Article extends CI_Controller {
             $article_info = $this->articleModel->selectArticle($article_seq);
             
             if ( !is_null($article_info) ) {
-                // 게시물 편집권한 체크
+                // 게시판 정보
                 $board_info = $this->data['BOARD_INFO'];
-                $edit_yn = "N";
-                if( $board_info['ADMIN_YN'] == "Y" ) {
-                    $edit_yn = "Y";
-                } else if( $board_info['EDIT_YN'] == "Y" && $member_seq == $article_info['MEMBER_SEQ'] ) {
-                    $edit_yn = "Y";
-                } else {
-                    $edit_yn = "N";
-                }
-                $article_info['EDIT_YN'] = $edit_yn;
-                $article_info['ADMIN_YN'] = $board_info['ADMIN_YN'];
                 // 게시물 첨부파일 조회
                 $attachedFile_list = $this->articleModel->selectAttachedFile_list($article_seq);
                 // 게시물 첨부문서 조회
@@ -277,53 +133,7 @@ class Article extends CI_Controller {
 
         echo json_encode( $result );
     }//     EOF     private function _article_read()
-
-    /**
-     * 게시물 삭제
-     */
-    private function _article_delete() {
-        $article_seq = $this->input->post('article_seq');
-        $member_seq = $this->input->post('member_seq');
-
-        $result = array();
-
-        if ( is_numeric($article_seq) ) {
-            // 게시물 작성자 or 관리자 인증
-            $article_info = $this->articleModel->selectArticle( $article_seq );
-            
-            if( !is_null($article_info) ) {
-                if( $article_info['MEMBER_SEQ'] == $member_seq || $this->data['BOARD_INFO']['ADMIN_YN'] == 'Y' ) {
-                    // 게시물 삭제
-                    $deleteArticle_result = $this->articleModel->deleteArticle( $article_seq );
     
-                    if ( $deleteArticle_result ) {
-                        $result['result'] = true;
-                        $result['message'] = '게시물 삭제 완료';
-                    } else {
-                        $result['result'] = false;
-                        $result['error_code'] = AR_PROCESS_ERROR[0];
-                        $result['message'] = AR_PROCESS_ERROR[1];
-                    }
-                } else {
-                    $result['result'] = false;
-                    $result['error_code'] = AR_PROCESS_ERROR[0];
-                    $result['message'] = AR_PROCESS_ERROR[1];
-                    $result['message'] .= ' - 게시물 작성자가 아니거나 관리자 권한 없습니다';
-                }
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_EMPTY_REQUEST[0];
-                $result['message'] = AR_EMPTY_REQUEST[1];
-            }
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }
-
-        echo json_encode( $result );
-    }//     EOF     private function _article_delete()
-
     /**
      * 댓글 작성
      */
