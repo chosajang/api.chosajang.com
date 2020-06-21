@@ -463,7 +463,11 @@ class Sample extends CI_Controller {
     }//     EOF     private function _sample_excel()
 
     private function _sample_fileupload() {
-        print_r($_FILES);
+        $file_seq_list = $this->my_common_library->file_upload(array(
+            'MEMBER_SEQ' => 47,
+            'FILE' => 'profile_file'
+        ));
+        print_r($file_seq_list);
     }//     EOF     private function _sample_fileupload()
 
     /**
