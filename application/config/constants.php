@@ -115,23 +115,6 @@ define('SYSTEM_MANAGER',4);
 define('MEMBER_STATUS_ACCESS', 3); // 승인
 
 /**
- * 프로젝트 회원등급(TB_PROJECT_MEMBER_GRADE)
- * 프로젝트 관리자 : 1
- * 업무 지시자 : 2
- * 작업자 : 3
- */
-define('PMG_MANAGER',1);
-define('PMG_ORDERER',2);
-define('PMG_WORKER',3);
-
-/**
- * 프로젝트 상태(PROJECT STATUS)
- */
-define('PS_WAIT',1);
-define('PS_PROGRESS',2);
-define('PS_END',3);
-
-/**
  * API 결과값(API Result)
  * 1 : 잘못된 요청(BAD REQUEST)
  * 2 : 미지원(UNSUPPORTED)
@@ -146,16 +129,6 @@ define('AR_OMISSION', [3,'필수값 누락(OMISSION)']);
 define('AR_FAILURE', [4,'인증 실패(FAILURE)']);
 define('AR_PROCESS_ERROR', [5,'프로세스 오류(PROCESS ERROR)']);
 define('AR_EMPTY_REQUEST', [6,'없는 자료 요청(EMPTY REQUEST)']);
-
-/**
- * 컬럼 생성용 키값
- */
-define('COLUMN_KEY','cgColKey');
-/**
- * 기본 컬럼 정보
- */
-define('STATUS_COLUMN_KEY', COLUMN_KEY.'0001');
-define('DEFAULT_COLUMN_INFO','{"last_key":"cgColKey0003","data_list":[{"key":"cgColKey0001","name":"Status","comment":"컷 상태","basic_yn":true,"type":5,"width":100,"sort_no":1},{"key":"cgColKey0002","name":"Roll","comment":"롤","basic_yn":true,"type":6,"width":80,"sort_no":2},{"key":"cgColKey0003","name":"Cut","comment":"컷 넘버","basic_yn":true,"type":6,"width":80,"sort_no":3}]}');
 
 /**
  * 게시판 공지사항 최대 개수

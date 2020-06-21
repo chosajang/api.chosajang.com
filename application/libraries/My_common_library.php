@@ -52,20 +52,12 @@ class My_Common_Library {
 
     /**
      * 파일 업로드 경로 생성기
-     *
-     * $file_upload_info
-     * 'PROJECT_SEQ' - 프로젝트 시퀀스
      */
-    function upload_path_generator($file_upload_info) {
-        // 프로젝트 시퀀스가 있을 경우, 경로 수정
-        if( array_key_exists('PROJECT_SEQ',$file_upload_info) ) {
-            $upload_path = PROJECT_DIR . $file_upload_info['PROJECT_SEQ']. DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('md') . DIRECTORY_SEPARATOR;
-        } else {
-            $upload_path = UPLOAD_DIR . date('Y') . DIRECTORY_SEPARATOR . date('md') . DIRECTORY_SEPARATOR;
-        }
+    function upload_path_generator() {
+        $upload_path = UPLOAD_DIR . date('Y') . DIRECTORY_SEPARATOR . date('md') . DIRECTORY_SEPARATOR;
 
         return $upload_path;
-    }//       EOF       function upload_path_generator($file_upload_info)
+    }//       EOF       function upload_path_generator()
 
     /**
      * 파일 업로드
@@ -82,7 +74,7 @@ class My_Common_Library {
         if ( array_key_exists('MEMBER_SEQ',$upload_info) && array_key_exists('FILE',$upload_info) && count($_FILES) > 0 ) {
             $f = $upload_info['FILE'];
             
-            $upload_path = $this->upload_path_generator( $upload_info );
+            $upload_path = $this->upload_path_generator();
             $file_full_path = DOCUMENT_ROOT . DATA_DIR . $upload_path;
 
             if (@mkdir($file_full_path, 0777, true)) {
