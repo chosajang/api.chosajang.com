@@ -492,8 +492,9 @@ class Sample extends CI_Controller {
     /**
      * 업로드 경로 확인
      */
-    private function _sample_pathcheck() {
-        echo DOCUMENT_ROOT . DATA_DIR;
+    private function _sample_fileUploadPath() {
+        $upload_path = $this->my_common_library->upload_path_generator();
+        echo DOCUMENT_ROOT . DATA_DIR . $upload_path;
     }
      
       
