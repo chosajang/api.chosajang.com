@@ -166,7 +166,7 @@ class User extends CI_Controller {
     private function _user_modify() {
         $result = array();
         $req_member_seq     = $this->input->post('req_member_seq');
-        $req_member_seq = nvl($req_member_seq);
+        $req_member_seq     = nvl($req_member_seq);
 
         $id                 = $this->input->post('id');
         $id                 = nvl($id);
@@ -196,7 +196,6 @@ class User extends CI_Controller {
                 $member_info['PASSWORD']          = password_hash($new_password, PASSWORD_BCRYPT);
             }
             
-
             $member_info['MEMBER_STATUS_SEQ'] = $member_status_seq;
             $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
             

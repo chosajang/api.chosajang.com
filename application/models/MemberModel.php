@@ -58,7 +58,6 @@ SELECT
     A.COMMENT,
     IFNULL(DATE_FORMAT(A.ADD_DATE,'%Y-%m-%d'),'')AS ADD_DATE,
     IFNULL(DATE_FORMAT(A.MOD_DATE,'%Y-%m-%d'),'')AS MOD_DATE,
-    IFNULL(DATE_FORMAT(A.ENTRY_DATE,'%Y-%m-%d'),'')AS ENTRY_DATE,
     ".$add_sql."
     A.PROFILE_FILE_SEQ,
     A.MEMBER_STATUS_SEQ,
@@ -124,7 +123,7 @@ SELECT
     A.NAME,
     A.TITLE,
     A.COMMENT,
-    IFNULL(DATE_FORMAT(A.ENTRY_DATE,'%Y-%m-%d'),'')AS ENTRY_DATE,
+    IFNULL(DATE_FORMAT(A.BIRTHDAY,'%Y-%m-%d'),'')AS BIRTHDAY,
     IF ( ISNULL(A.PROFILE_FILE_SEQ),
             '',
             CONCAT('" . DIRECTORY_SEPARATOR . DATA_DIR . DIRECTORY_SEPARATOR . "', B.PATH, B.PHYSICAL_NAME) ) AS PROFILE_IMG,
@@ -224,11 +223,6 @@ AND SET_YN = 'Y' ";
             $member_info['COMMENT']
         );
 
-        if ( @!is_null($member_info['ENTRY_DATE']) && nvl($member_info['ENTRY_DATE']) !== '' ) {
-            $column_sql .= ', ENTRY_DATE';
-            $value_sql .= ', ?';
-            array_push($param,$member_info['ENTRY_DATE']);
-        }
         if ( @!is_null($member_info['PROFILE_FILE_SEQ']) && nvl($member_info['PROFILE_FILE_SEQ']) !== ''  ) {
             $column_sql .= ', PROFILE_FILE_SEQ';
             $value_sql .= ', ?';
@@ -305,12 +299,6 @@ WHERE SEQ = ? ";
             array_push($param,$member_info['COMMENT']);
             $query_exec = true;
         }
-        if ( @!is_null($member_info['ENTRY_DATE']) ) {
-            $temp_sql = 'ENTRY_DATE = ?';
-            $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
-            array_push($param,$member_info['ENTRY_DATE']);
-            $query_exec = true;
-        } 
         if ( @!is_null($member_info['PROFILE_FILE_SEQ']) ) {
             $temp_sql = 'PROFILE_FILE_SEQ = ?';
             $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
