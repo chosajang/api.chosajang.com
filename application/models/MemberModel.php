@@ -299,6 +299,12 @@ WHERE SEQ = ? ";
             array_push($param,$member_info['COMMENT']);
             $query_exec = true;
         }
+        if ( @!is_null($member_info['TITLE']) ) {
+            $temp_sql = 'TITLE = ?';
+            $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
+            array_push($param,$member_info['TITLE']);
+            $query_exec = true;
+        }
         if ( @!is_null($member_info['PROFILE_FILE_SEQ']) ) {
             $temp_sql = 'PROFILE_FILE_SEQ = ?';
             $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;

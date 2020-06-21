@@ -170,16 +170,14 @@ class User extends CI_Controller {
 
         $id                 = $this->input->post('id');
         $id                 = nvl($id);
-        $new_password       = $this->input->post('new_password');
-        $new_password       = nvl($new_password);
+        $password           = $this->input->post('new_password');
+        $password           = nvl($password);
         $name               = $this->input->post('name');
         $name               = nvl($name);
-        $entry_date         = $this->input->post('entry_date');
+        $title              = $this->input->post('title');
         $birthday           = $this->input->post('birthday');
-        $tel                = $this->input->post('tel');
         $comment            = $this->input->post('comment');
 
-        $member_title_seq   = $this->input->post('member_title_seq');
         $member_status_seq  = $this->input->post('member_status_seq');
         
         if( $req_member_seq != "" && $id != "" && $name != "" ) {
@@ -188,16 +186,14 @@ class User extends CI_Controller {
             $member_info['SEQ']               = $req_member_seq;
             $member_info['ID']                = $id;
             $member_info['NAME']              = $name;
-            $member_info['ENTRY_DATE']        = $entry_date;
+            $member_info['TITLE']             = $title;
             $member_info['BIRTHDAY']          = $birthday;
-            $member_info['TEL']               = $tel;
             $member_info['COMMENT']           = $comment;
-            if( $new_password != '' ){
-                $member_info['PASSWORD']          = password_hash($new_password, PASSWORD_BCRYPT);
+            if( $password != '' ){
+                $member_info['PASSWORD'] = password_hash($password, PASSWORD_BCRYPT);
             }
             
             $member_info['MEMBER_STATUS_SEQ'] = $member_status_seq;
-            $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
             
             // 회원 정보 수정
             $updateMember_Result = $this->memberModel->updateMember($member_info);
