@@ -199,6 +199,7 @@ class User extends CI_Controller {
             $updateMember_Result = $this->memberModel->updateMember($member_info);
 
             if( $updateMember_Result ) {
+                $profile_file_info = null;
                 // 프로필 이미지 등록
                 if (count($_FILES) > 0) {
                     // 프로필 이미지 등록
@@ -211,11 +212,13 @@ class User extends CI_Controller {
                         "SEQ" => $req_member_seq,
                         "PROFILE_FILE_SEQ" => $file_seq_list[0]['FILE_SEQ'],
                     ]);
+                    $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
                 }
-                $result_member_info = $this->memberModel->selectMember($member_info['SEQ']);
+                $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
+
                 $result['result'] = true;
                 $result['message'] = '회원정보 업데이트 성공';
-                $result['data'] = $result_member_info;
+                $result['data'] = $member_info;
             } else {
                 $result['result'] = false;
                 $result['error_code'] = AR_PROCESS_ERROR[0];
