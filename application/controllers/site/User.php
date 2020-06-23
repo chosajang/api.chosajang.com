@@ -269,10 +269,10 @@ class User extends CI_Controller {
     private function _user_logout() {
         $member_seq = $this->input->get('member_seq');
         $session_id = $this->input->get('session_id');
+        
+        $memberInfo = $this->memberModel->selectMember( $member_seq, TRUE );
 
-        $login_check_result = $this->my_common_library->session_check($member_seq, $session_id);
-
-        if ( $login_check_result ) {
+        if ( $session_id === $memberInfo['SESSION_ID'] ) {
             // 회원 테이블 session_id 항목 빈값으로 업데이트
             if( $this->memberModel->updateMember_sessionClear($member_seq) ){
                 $result['result'] = true;

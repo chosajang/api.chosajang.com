@@ -44,7 +44,7 @@ class Board extends CI_Controller {
 
             if ( $api_auth === true ) {
                 // API 사용 인증 : 세션ID 확인
-                $session_check_result = $this->my_common_library->session_check(SITE_MANAGER);
+                $session_check_result = $this->my_common_library->session_check();
 
                 if( $session_check_result ) {
                     // 요청 컨트롤러 호출
