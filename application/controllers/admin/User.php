@@ -212,8 +212,10 @@ class User extends CI_Controller {
                         "PROFILE_FILE_SEQ" => $file_seq_list[0]['FILE_SEQ'],
                     ]);
                 }
+                $result_member_info = $this->memberModel->selectMember($member_info['SEQ']);
                 $result['result'] = true;
                 $result['message'] = '회원정보 업데이트 성공';
+                $result['data'] = $result_member_info;
             } else {
                 $result['result'] = false;
                 $result['error_code'] = AR_PROCESS_ERROR[0];
