@@ -22,7 +22,7 @@ class My_Common_Library {
     /** 
      * 로그인 세션 체크
      */
-    function session_check($req_grade=1) {
+    function session_check() {
         $result = false;
         $member_seq = $this->CI->input->get('member_seq');
         $session_id = $this->CI->input->get('session_id');
@@ -37,18 +37,15 @@ class My_Common_Library {
             if ( !is_null($info) && @$info['SESSION_ID'] === $session_id && $member_status_seq === MEMBER_STATUS_ACCESS ) { 
                 $member_grade_seq = (int)$info['MEMBER_GRADE_SEQ'];
                 // 회원 등급으로 가능한 요청인지 확인
-                if ( $member_grade_seq === SYSTEM_MANAGER ) {
+                if ( $member_grade_seq === SITE_MANAGER ) {
                     // 시스템 관리자
-                    $result = true;
-                } else if ( $member_grade_seq === USER && $req_grade === USER ) {
-                    // 일반 회원
                     $result = true;
                 }
             }
         }
 
         return $result;
-    }//     EOF     function session_check($grade=1)
+    }//     EOF     function session_check()
 
     /**
      * 파일 업로드 경로 생성기

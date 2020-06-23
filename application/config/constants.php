@@ -105,8 +105,6 @@ define('PROJECT_DIR','project' . DIRECTORY_SEPARATOR);
  */
 define('USER',1);
 define('SITE_MANAGER',2);
-define('PROJECT_MANAGER',3);
-define('SYSTEM_MANAGER',4);
 
 /**
  * 회원상태(TB_MEMBER_STATUS)
