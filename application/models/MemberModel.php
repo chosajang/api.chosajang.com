@@ -54,7 +54,6 @@ SELECT
     A.ID,
     A.NAME,
     A.TITLE,
-    A.BIRTHDAY,
     A.COMMENT,
     IFNULL(DATE_FORMAT(A.ADD_DATE,'%Y-%m-%d'),'')AS ADD_DATE,
     IFNULL(DATE_FORMAT(A.MOD_DATE,'%Y-%m-%d'),'')AS MOD_DATE,
@@ -123,7 +122,6 @@ SELECT
     A.NAME,
     A.TITLE,
     A.COMMENT,
-    IFNULL(DATE_FORMAT(A.BIRTHDAY,'%Y-%m-%d'),'')AS BIRTHDAY,
     IF ( ISNULL(A.PROFILE_FILE_SEQ),
             '',
             CONCAT('" . DIRECTORY_SEPARATOR . DATA_DIR . DIRECTORY_SEPARATOR . "', B.PATH, B.PHYSICAL_NAME) ) AS PROFILE_IMG,
@@ -219,7 +217,6 @@ AND SET_YN = 'Y' ";
             $member_info['ID'],
             $member_info['PASSWORD'],
             $member_info['NAME'],
-            $member_info['BIRTHDAY'],
             $member_info['COMMENT']
         );
 
@@ -235,8 +232,8 @@ AND SET_YN = 'Y' ";
         }
 
         $sql = "
-INSERT INTO TB_MEMBER(ID,PASSWORD,NAME,BIRTHDAY,COMMENT" . $column_sql . ")
-VALUES( ?, ?, ?, ?, ?" . $value_sql . " ) ";
+INSERT INTO TB_MEMBER(ID,PASSWORD,NAME,COMMENT" . $column_sql . ")
+VALUES( ?, ?, ?, ?" . $value_sql . " ) ";
 
         $result = $this->db->query( $sql, $param );
         
@@ -287,12 +284,6 @@ WHERE SEQ = ? ";
             array_push($param,$member_info['NAME']);
             $query_exec = true;
         }
-        if ( @!is_null($member_info['BIRTHDAY']) ) {
-            $temp_sql = 'BIRTHDAY = ?';
-            $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
-            array_push($param,$member_info['BIRTHDAY']);
-            $query_exec = true;
-        } 
         if ( @!is_null($member_info['COMMENT']) ) {
             $temp_sql = 'COMMENT = ?';
             $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;

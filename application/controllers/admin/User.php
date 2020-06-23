@@ -78,10 +78,7 @@ class User extends CI_Controller {
         $password           = $this->input->post('password');
         $name               = $this->input->post('name');
         $entry_date         = $this->input->post('entry_date');
-        $birthday           = $this->input->post('birthday');
-        $tel                = $this->input->post('tel');
         $comment            = $this->input->post('comment');
-
         $member_title_seq   = $this->input->post('title_seq');
 
         // 회원 객체 생성
@@ -90,9 +87,7 @@ class User extends CI_Controller {
         $member_info['PASSWORD']          = password_hash($password, PASSWORD_BCRYPT);
         $member_info['NAME']              = $name;
         $member_info['ENTRY_DATE']        = $entry_date;
-        $member_info['BIRTHDAY']          = $birthday;
         $member_info['MEMBER_TITLE_SEQ']  = $member_title_seq;
-        $member_info['TEL']               = $tel;
         $member_info['COMMENT']           = nvl($comment);
 
         // ID 중복 확인
@@ -175,7 +170,6 @@ class User extends CI_Controller {
         $name               = $this->input->post('name');
         $name               = nvl($name);
         $title              = $this->input->post('title');
-        $birthday           = $this->input->post('birthday');
         $comment            = $this->input->post('comment');
 
         $member_status_seq  = $this->input->post('member_status_seq');
@@ -187,7 +181,6 @@ class User extends CI_Controller {
             $member_info['ID']                = $id;
             $member_info['NAME']              = $name;
             $member_info['TITLE']             = $title;
-            $member_info['BIRTHDAY']          = $birthday;
             $member_info['COMMENT']           = $comment;
             if( $password != '' ){
                 $member_info['PASSWORD'] = password_hash($password, PASSWORD_BCRYPT);
