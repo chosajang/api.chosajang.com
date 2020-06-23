@@ -207,12 +207,13 @@ class User extends CI_Controller {
                         'MEMBER_SEQ' => $req_member_seq,
                         'FILE' => 'profile_file'
                     ));
+                    $file_seq = $file_seq_list[0]['FILE_SEQ'];
                     // 등록된 이미지를 회원정보로 등록
                     $this->memberModel->updateMember([
                         "SEQ" => $req_member_seq,
-                        "PROFILE_FILE_SEQ" => $file_seq_list[0]['FILE_SEQ'],
+                        "PROFILE_FILE_SEQ" => $file_seq,
                     ]);
-                    $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
+                    $profile_file_info = $this->fileModel->selectFileForSeq($file_seq);
                 }
                 $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
 
