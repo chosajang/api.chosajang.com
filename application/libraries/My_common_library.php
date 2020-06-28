@@ -38,7 +38,7 @@ class My_Common_Library {
                 $member_grade_seq = (int)$info['MEMBER_GRADE_SEQ'];
                 // 회원 등급으로 가능한 요청인지 확인
                 if ( $member_grade_seq === SITE_MANAGER ) {
-                    // 시스템 관리자
+                    // 관리자
                     $result = true;
                 }
             }
