@@ -39,7 +39,7 @@ class Board extends CI_Controller {
             header_cors();
 
             // API 인증 목록
-            $auth_list = array('list','read','write','delete');
+            $auth_list = array('write','modify','delete');
             $api_auth = in_array( $function, $auth_list );
 
             if ( $api_auth === true ) {
@@ -73,21 +73,7 @@ class Board extends CI_Controller {
      * 게시판 목록
      */
     private function _board_list() {
-        $page = $this->input->get('page');
-        $limit = $this->input->get('limit');
-        $search = $this->input->get('search');
-
-        // page가 숫자가 아니거나 값이 없는경우, 게시물 전체 검색으로 간주
-        if( !is_numeric($page) || nvl($limit) == '' ){
-            $limit = 0;
-            $limit_start = 0;
-        } else {
-            $page = !is_numeric($page) ? 1 : $page;
-            $limit = (int)nvl($limit, 10);
-            $limit_start = ($page - 1) * $limit;
-        }
-        
-        $board_list = $this->boardModel->selectBoard_list($limit_start, $limit, $search);
+        $board_list = $this->boardModel->selectBoard_list();
 
         $result['result'] = true;
         $result['board_list'] = $board_list;
