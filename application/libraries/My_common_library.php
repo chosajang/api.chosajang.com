@@ -32,9 +32,8 @@ class My_Common_Library {
 
         if ( nvl($member_seq,'') != '' && nvl($session_id,'') != '' ) {
             $info = $this->CI->memberModel->selectMember( $member_seq, TRUE );
-            $member_status_seq = (int)$info['MEMBER_STATUS_SEQ'];
             // 요청 세션과 회원 세션정보가 일치 한지 확인
-            if ( !is_null($info) && @$info['SESSION_ID'] === $session_id && $member_status_seq === MEMBER_STATUS_ACCESS ) { 
+            if ( !is_null($info) && @$info['SESSION_ID'] === $session_id ) { 
                 $member_grade_seq = (int)$info['MEMBER_GRADE_SEQ'];
                 // 회원 등급으로 가능한 요청인지 확인
                 if ( $member_grade_seq === SITE_MANAGER ) {
