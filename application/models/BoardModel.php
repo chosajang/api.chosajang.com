@@ -21,7 +21,8 @@ SELECT
     ADD_DATE,
     MOD_DATE
 FROM TB_BOARD
-WHERE USE_YN = 'Y'";
+WHERE USE_YN = 'Y'
+ORDER BY ADD_DATE DESC ";
 
         $result = $this->db->query( $sql );
         
