@@ -63,7 +63,8 @@ SELECT
     AD.NAME AS MEMBER_GRADE_NAME
 FROM TB_MEMBER A
     INNER JOIN TB_MEMBER_GRADE AD ON A.MEMBER_GRADE_SEQ = AD.SEQ /* 회원등급 */
-WHERE A.SEQ = ? ";
+WHERE A.USE_YN = 'Y'
+AND A.SEQ = ? ";
      
         $param = array( $member_seq );
         $result = $this->db->query( $sql, $param );
@@ -127,6 +128,7 @@ FROM
     TB_MEMBER A
         INNER JOIN TB_MEMBER_GRADE AC ON AC.SEQ = A.MEMBER_GRADE_SEQ AND AC.USE_YN = 'Y'
         LEFT JOIN TB_FILE B ON A.PROFILE_FILE_SEQ = B.SEQ
+    WHERE A.USE_YN = 'Y'
 ORDER BY A.ADD_DATE DESC ";
 
         $result = $this->db->query( $sql );
