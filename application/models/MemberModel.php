@@ -59,12 +59,9 @@ SELECT
     IFNULL(DATE_FORMAT(A.MOD_DATE,'%Y-%m-%d'),'')AS MOD_DATE,
     ".$add_sql."
     A.PROFILE_FILE_SEQ,
-    A.MEMBER_STATUS_SEQ,
-    AB.NAME AS MEMBER_STATUS_NAME,
     A.MEMBER_GRADE_SEQ,
     AD.NAME AS MEMBER_GRADE_NAME
 FROM TB_MEMBER A
-    INNER JOIN TB_MEMBER_STATUS AB ON A.MEMBER_STATUS_SEQ = AB.SEQ /* 회원상태 */
     INNER JOIN TB_MEMBER_GRADE AD ON A.MEMBER_GRADE_SEQ = AD.SEQ /* 회원등급 */
 WHERE A.SEQ = ? ";
      
@@ -109,12 +106,7 @@ WHERE SEQ = ? ";
     /**
      * 회원 목록(selectMember_list)
      */
-    function selectMember_list( $member_status_seq ) {
-        $where_sql = "";
-        if( $member_status_seq != "" ) {
-            $where_sql = "WHERE A.MEMBER_STATUS_SEQ IN (" . join(',',$member_status_seq) . ") ";
-        }
-
+    function selectMember_list() {
         $sql = "
 SELECT 
     A.SEQ,
@@ -129,41 +121,19 @@ SELECT
             '',
             CONCAT('" . DIRECTORY_SEPARATOR . DATA_DIR . DIRECTORY_SEPARATOR . "', B.PATH, IFNULL( JSON_UNQUOTE( JSON_EXTRACT( B.INFO, '$.THUMB_FILE_NAME' ) ), '') ) ) AS PROFILE_THUMB_IMG,
     IFNULL(JSON_VALUE(B.INFO,'$.THUMB_FILE_NAME'),'')AS THUMB_FILE_NAME,
-    AB.SEQ AS MEMBER_STATUS_SEQ,
-    AB.NAME AS MEMBER_STATUS_NAME,
     AC.SEQ AS MEMBER_GRADE_SEQ,
     AC.NAME AS MEMBER_GRADE_NAME
 FROM
     TB_MEMBER A
-        INNER JOIN TB_MEMBER_STATUS AB ON AB.SEQ = A.MEMBER_STATUS_SEQ AND AB.USE_YN = 'Y'
         INNER JOIN TB_MEMBER_GRADE AC ON AC.SEQ = A.MEMBER_GRADE_SEQ AND AC.USE_YN = 'Y'
         LEFT JOIN TB_FILE B ON A.PROFILE_FILE_SEQ = B.SEQ
-    " . $where_sql . "
-ORDER BY A.SEQ ASC ";
+ORDER BY A.ADD_DATE DESC ";
 
         $result = $this->db->query( $sql );
         $member_list = $result->result_array();
         
         return $member_list;
-    }//     EOF     function selectMember_list( $member_status_seq )
-
-    /*
-     * 회원 상태 목록 조회(selectMemberStatusList)
-     */
-    function selectMemberStatusList() {
-        $sql = "
-SELECT
-    SEQ,
-    NAME
-FROM TB_MEMBER_STATUS
-WHERE USE_YN = 'Y'
-ORDER BY SEQ ASC ";
-        
-        $result = $this->db->query( $sql );
-        $member_status_list = $result->result_array();
-        
-        return $member_status_list;
-    }//       EOF       function selectMemberStatusList()
+    }//     EOF     function selectMember_list()
     
     /**
      * 회원 등급 목록 조회(selectMemberGradeList)
@@ -224,11 +194,6 @@ AND SET_YN = 'Y' ";
             $column_sql .= ', PROFILE_FILE_SEQ';
             $value_sql .= ', ?';
             array_push($param,$member_info['PROFILE_FILE_SEQ']);
-        }
-        if ( @!is_null($member_info['MEMBER_STATUS_SEQ']) && nvl($member_info['MEMBER_STATUS_SEQ']) !== ''  ) {
-            $column_sql .= ', MEMBER_STATUS_SEQ';
-            $value_sql .= ', ?';
-            array_push($param,$member_info['MEMBER_STATUS_SEQ']);
         }
 
         $sql = "
@@ -300,12 +265,6 @@ WHERE SEQ = ? ";
             $temp_sql = 'PROFILE_FILE_SEQ = ?';
             $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
             array_push($param,$member_info['PROFILE_FILE_SEQ']);
-            $query_exec = true;
-        }
-        if ( @!is_null($member_info['MEMBER_STATUS_SEQ']) ) {
-            $temp_sql = 'MEMBER_STATUS_SEQ = ?';
-            $set_sql .= $set_sql !== '' ? ','.$temp_sql : $temp_sql;
-            array_push($param,$member_info['MEMBER_STATUS_SEQ']);
             $query_exec = true;
         }
         if ( @!is_null($member_info['MEMBER_GRADE_SEQ']) ) {

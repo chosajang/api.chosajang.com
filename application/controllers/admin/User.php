@@ -171,8 +171,6 @@ class User extends CI_Controller {
         $name               = nvl($name);
         $title              = $this->input->post('title');
         $comment            = $this->input->post('comment');
-
-        $member_status_seq  = $this->input->post('member_status_seq');
         
         if( $req_member_seq != "" && $id != "" && $name != "" ) {
             // 회원 객체 생성
@@ -185,8 +183,6 @@ class User extends CI_Controller {
             if( $password != '' ){
                 $member_info['PASSWORD'] = password_hash($password, PASSWORD_BCRYPT);
             }
-            
-            $member_info['MEMBER_STATUS_SEQ'] = $member_status_seq;
             
             // 회원 정보 수정
             $updateMember_Result = $this->memberModel->updateMember($member_info);
@@ -257,9 +253,7 @@ class User extends CI_Controller {
      * 회원 목록(_user_list)
      */
     private function _user_list() {
-        // "" 빈값으로 요청하면 모든 상태(대기,승인,반려,탈퇴)의 회원 목록을 조회한다
-        $member_status_seq = [1,2,3];
-        $member_list = $this->memberModel->selectMember_list( $member_status_seq );
+        $member_list = $this->memberModel->selectMember_list();
 
         if ( $member_list != null ) {
             $result['result'] = true;
