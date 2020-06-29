@@ -119,18 +119,22 @@ class Board extends CI_Controller {
         $attached_file_yn = nvl($attached_file_yn,'N') == 'N' ? 'N' : 'Y';
         $attached_document_yn = $this->input->post('attached_document_yn');
         $attached_document_yn = nvl($attached_document_yn,'N') == 'N' ? 'N' : 'Y';
-        $auth_yn = $this->input->post('auth_yn');
-        $auth_yn = nvl($auth_yn,'N') == 'N' ? 'N' : 'Y';
-        $notice_count = $this->input->post('notice_count');
-        $notice_count = !is_numeric(nvl($notice_count,BOARD_NOTICE_COUNT)) ? BOARD_NOTICE_COUNT : ($notice_count > BOARD_NOTICE_COUNT ? BOARD_NOTICE_COUNT : $notice_count );
 
         $result = array();
 
         if ( nvl($name) != '' ) {
-            $board_seq = $this->boardModel->insertBoard( $name, $comment_yn, $attached_file_yn, $attached_document_yn, $auth_yn, 'N', $notice_count );
+            $board_seq = $this->boardModel->insertBoard( $name, $comment_yn, $attached_file_yn, $attached_document_yn );
             if ( $board_seq ) {
+                $boardInfo = array();
+                $boardInfo['SEQ'] = $board_seq;
+                $boardInfo['NAME'] = $name;
+                $boardInfo['COMMENT_YN'] = $comment_yn;
+                $boardInfo['ATTACHED_FILE_YN'] = $attached_file_yn;
+                $boardInfo['ATTACHED_DOCUMENT_YN'] = $attached_document_yn;
+
                 $result['result'] = true;
                 $result['message'] = '게시판 생성 완료';
+                $result['data'] = $boardInfo;
             } else {
                 $result['result'] = false;
                 $result['error_code'] = AR_PROCESS_ERROR[0];
