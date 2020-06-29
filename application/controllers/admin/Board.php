@@ -111,7 +111,7 @@ class Board extends CI_Controller {
     /**
      * 게시판 생성
      */
-    private function _board_write() {
+    private function _board_create() {
         $name = $this->input->post('name');
         $comment_yn = $this->input->post('comment_yn');
         $comment_yn = nvl($comment_yn,'N') == 'N' ? 'N' : 'Y';
@@ -143,12 +143,12 @@ class Board extends CI_Controller {
         }
 
         echo json_encode($result);
-    }//     EOF     private function _board_write()
+    }//     EOF     private function _board_create()
 
     /**
      * 게시판 수정
      */
-    private function _board_modify() {
+    private function _board_update() {
         $board_seq = $this->input->post('board_seq');
         $name = $this->input->post('name');
         $comment_yn = $this->input->post('comment_yn');
@@ -182,7 +182,7 @@ class Board extends CI_Controller {
         }
 
         echo json_encode($result);
-    }//     EOF     private function _board_modify()
+    }//     EOF     private function _board_update()
 
     /**
      * 게시판 삭제
