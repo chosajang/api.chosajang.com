@@ -131,6 +131,7 @@ class Board extends CI_Controller {
                 $boardInfo['COMMENT_YN'] = $comment_yn;
                 $boardInfo['ATTACHED_FILE_YN'] = $attached_file_yn;
                 $boardInfo['ATTACHED_DOCUMENT_YN'] = $attached_document_yn;
+                $boardInfo['USE_YN'] = 'Y';
 
                 $result['result'] = true;
                 $result['message'] = '게시판 생성 완료';
