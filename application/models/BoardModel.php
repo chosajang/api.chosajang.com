@@ -79,7 +79,7 @@ WHERE A.SEQ = ? ";
     function insertBoard($name, $comment_yn, $attached_file_yn, $attached_document_yn ) {
         $sql = "
 INSERT INTO TB_BOARD( NAME, COMMENT_YN, ATTACHED_FILE_YN, ATTACHED_DOCUMENT_YN )
-VALUES( ?, ?, ?, ?, ?, ? ) ";
+VALUES( ?, ?, ?, ? ) ";
 
         $this->db->query( $sql, array($name, $comment_yn, $attached_file_yn, $attached_document_yn ) );
 
@@ -118,24 +118,5 @@ WHERE SEQ = ? ";
 
         return $query_result;
     }//     EOF     function deleteBoard($board_seq)
-
-    /**
-     * 프로젝트 게시판 생성
-     * - 게시판 생성
-     * - 프로젝트 게시판 연결
-     */
-    function insertProjectBoard( $project_seq, $name, $comment_yn, $attached_file_yn, $attached_document_yn ) {
-        // 게시판 생성
-        $project_yn = 'Y';
-        $board_seq = $this->insertBoard( $name, $comment_yn, $attached_file_yn, $attached_document_yn );
-        // 프로젝트 게시판 연결
-        $sql = "
-INSERT INTO TB_PROJECT_BOARD_LINK(PROJECT_SEQ, BOARD_SEQ)
-VALUES( ?, ? ) ";
-
-        $result = $this->db->query( $sql, array( $project_seq, $board_seq ) );
-
-        return $result;
-    }//     EOF     function insertProjectBoard( $project_seq, $name, $comment_yn, $attached_file_yn, $attached_document_yn )
 
 }//     EOC     class BoardModel extends CI_Model
