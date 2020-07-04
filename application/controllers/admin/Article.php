@@ -66,7 +66,7 @@ class Article extends CI_Controller {
     private function _article_list() {
         // 게시물 목록 조회
         $result['result'] = true;
-        $result['data'] = $this->articleModel->selectArticle_list();
+        $result['article_list'] = $this->articleModel->selectArticle_list();
 
         echo json_encode($result);
     }//     EOF     private function _article_list()

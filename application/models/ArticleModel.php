@@ -72,9 +72,8 @@ INNER JOIN TB_MEMBER C ON C.SEQ = A.MEMBER_SEQ
 AND A.USE_YN = 'Y' ";
 
         $result = $this->db->query( $sql );
-        $result_info['ARTICLE_LIST'] = $result->result_array();
         
-        return $result_info;
+        return $result->result_array();
     }//     EOF     function selectArticle_list ()
 
     /**
