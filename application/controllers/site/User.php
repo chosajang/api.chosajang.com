@@ -191,28 +191,20 @@ class User extends CI_Controller {
                 // 회원정보 조회
                 $member_info = $this->memberModel->selectMember( $password_info['SEQ'], TRUE );
                 if( !is_null($member_info) ) {
-                    // 회원 상태 확인(승인 상태인 경우에만 진행)
-                    if( $member_info['MEMBER_STATUS_SEQ'] == MEMBER_STATUS_ACCESS ) {
-                        // 회원로그인 정보 업데이트
-                        $session_id = random_string('sha1');
-                        $this->memberModel->updateMemberLogin($member_info['SEQ'], $session_id);
+                    // 회원로그인 정보 업데이트
+                    $session_id = random_string('sha1');
+                    $this->memberModel->updateMemberLogin($member_info['SEQ'], $session_id);
 
-                        // 파일정보조회
-                        $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
-                        $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
+                    // 파일정보조회
+                    $profile_file_info = $this->fileModel->selectFileForSeq($member_info['PROFILE_FILE_SEQ']);
+                    $member_info['PROFILE_FILE_INFO'] = $profile_file_info;
 
-                        $member_info['SESSION_ID'] = $session_id;
+                    $member_info['SESSION_ID'] = $session_id;
 
-                        // 결과값 생성
-                        $result['result'] = true;
-                        $result['message'] = '로그인 정보가 확인되었습니다';
-                        $result['member_info'] = $member_info;
-                    } else {
-                        $result['result'] = false;
-                        $result['error_code'] = AR_FAILURE[0];
-                        $result['message'] = AR_FAILURE[1];
-                        $result['message'] .= ' - ['.$member_info['MEMBER_STATUS_NAME'].'] 상태회원';
-                    }//     EO      if( $member_info['MEMBER_STATUS_NAME'] === 3 )        
+                    // 결과값 생성
+                    $result['result'] = true;
+                    $result['message'] = '로그인 정보가 확인되었습니다';
+                    $result['member_info'] = $member_info;
                 } else {
                     // 회원정보 조회 실패
                     $result['result'] = false;
@@ -515,8 +507,7 @@ class User extends CI_Controller {
      */
     private function _user_list() {
         // 승인 상태(3) 회원의 목록만 조회
-        $member_status_seq = [3];
-        $member_list = $this->memberModel->selectMember_list( $member_status_seq );
+        $member_list = $this->memberModel->selectMember_list();
 
         if ( $member_list !== null ) {
             $result['result'] = true;
