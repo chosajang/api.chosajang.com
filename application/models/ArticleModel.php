@@ -69,7 +69,8 @@ SELECT
 FROM TB_ARTICLE A
 INNER JOIN TB_BOARD B ON B.SEQ = A.BOARD_SEQ
 INNER JOIN TB_MEMBER C ON C.SEQ = A.MEMBER_SEQ
-AND A.USE_YN = 'Y' ";
+AND A.USE_YN = 'Y'
+ORDER BY A.ADD_DATE DESC ";
 
         $result = $this->db->query( $sql );
         
