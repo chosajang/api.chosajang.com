@@ -43,29 +43,10 @@ class Article extends CI_Controller {
             // API 사용 인증 : 세션ID 확인
             $session_check_result = $this->my_common_library->session_check();
 
-            if ( $session_check_result ) {                
-                $board_seq = $this->my_common_library->get_post('board_seq');
-                $member_seq = $this->my_common_library->get_post('member_seq');
-                if( $board_seq != "" && $member_seq != "" ) {
-                    // 게시판 정보 조회
-                    $board_info = $this->boardModel->selectBoardForMember( $board_seq );
-                    if( @!is_null($board_info) && $board_info['SEQ'] != "" ) {
-                        // 게시판 정보 전역변수에 할당
-                        $this->data['BOARD_INFO'] = $board_info;
-                        // 요청 컨트롤러 호출
-                        $this->{$this->method_prefix.$function}();
-                        exit;
-                    } else {
-                        $result['result'] = false;
-                        $result['error_code'] = AR_EMPTY_REQUEST[0];
-                        $result['message'] = AR_EMPTY_REQUEST[1];
-                        $result['message'] .= " - 게시판 정보가 없습니다";
-                    }
-                } else {
-                    $result['result'] = false;
-                    $result['error_code'] = AR_BAD_REQUEST[0];
-                    $result['message'] = AR_BAD_REQUEST[1];
-                }
+            if ( $session_check_result ) {
+                // 요청 컨트롤러 호출
+                $this->{$this->method_prefix.$function}();
+                exit;
             } else {
                 $result['result'] = false;
                 $result['error_code'] = AR_FAILURE[0];
