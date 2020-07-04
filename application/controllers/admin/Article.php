@@ -83,20 +83,9 @@ class Article extends CI_Controller {
      * 게시물 목록
      */
     private function _article_list() {
-        $board_seq = $this->input->get('board_seq');
-
-        if ( is_numeric($board_seq) ) {
-            // 게시물 목록 조회
-            $article_list = $this->articleModel->selectArticle_list( $board_seq );
-            $article_list['BOARD_INFO'] = $this->data['BOARD_INFO'];
-
-            $result['result'] = true;
-            $result['data'] = $article_list;
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }
+        // 게시물 목록 조회
+        $result['result'] = true;
+        $result['data'] = $this->articleModel->selectArticle_list();
 
         echo json_encode($result);
     }//     EOF     private function _article_list()
