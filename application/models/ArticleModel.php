@@ -55,10 +55,7 @@ AND A.SEQ = ? ";
     /**
      * 게시물 목록(BOARD LIST)
      */
-    function selectArticle_list( $board_seq ) {
-        $param = array();
-        array_push($param,$board_seq);
-
+    function selectArticle_list() {
         $result_info = array();
 
         $sql = "
@@ -72,14 +69,13 @@ SELECT
 FROM TB_ARTICLE A
 INNER JOIN TB_BOARD B ON B.SEQ = A.BOARD_SEQ
 INNER JOIN TB_MEMBER C ON C.SEQ = A.MEMBER_SEQ
-WHERE B.SEQ = ?
 AND A.USE_YN = 'Y' ";
 
-        $result = $this->db->query( $sql, $param );
+        $result = $this->db->query( $sql );
         $result_info['ARTICLE_LIST'] = $result->result_array();
         
         return $result_info;
-    }//     EOF     function selectArticle_list ($board_seq)
+    }//     EOF     function selectArticle_list ()
 
     /**
      * 게시물 첨부파일 조회

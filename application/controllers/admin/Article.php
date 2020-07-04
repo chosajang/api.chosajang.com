@@ -80,7 +80,7 @@ class Article extends CI_Controller {
     }//       EOF          public function _remap($function)
 
     /**
-     * 게시판 목록
+     * 게시물 목록
      */
     private function _article_list() {
         $board_seq = $this->input->get('board_seq');
