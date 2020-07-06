@@ -218,7 +218,6 @@ class Article extends CI_Controller {
                 $result['result'] = true;
                 $result['article'] = $article_info;
                 $result['attachedFile_list'] = $attachedFile_list;
-                $result['attachedDocument_list'] = $attachedDocument_list;
                 $result['comment_list'] = $comment_list;
             } else {
                 $result['result'] = false;
