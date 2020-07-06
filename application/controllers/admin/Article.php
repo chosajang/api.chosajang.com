@@ -210,22 +210,8 @@ class Article extends CI_Controller {
             $article_info = $this->articleModel->selectArticle($article_seq);
             
             if ( !is_null($article_info) ) {
-                // 게시물 편집권한 체크
-                $board_info = $this->data['BOARD_INFO'];
-                $edit_yn = "N";
-                if( $board_info['ADMIN_YN'] == "Y" ) {
-                    $edit_yn = "Y";
-                } else if( $board_info['EDIT_YN'] == "Y" && $member_seq == $article_info['MEMBER_SEQ'] ) {
-                    $edit_yn = "Y";
-                } else {
-                    $edit_yn = "N";
-                }
-                $article_info['EDIT_YN'] = $edit_yn;
-                $article_info['ADMIN_YN'] = $board_info['ADMIN_YN'];
                 // 게시물 첨부파일 조회
                 $attachedFile_list = $this->articleModel->selectAttachedFile_list($article_seq);
-                // 게시물 첨부문서 조회
-                $attachedDocument_list = $this->articleModel->selectAttachedDocument_list($article_seq);
                 // 댓글 목록
                 $comment_list = $this->articleModel->selectArticleComment_list($article_seq);
                 
