@@ -128,7 +128,7 @@ class Article extends CI_Controller {
         
         if ( is_numeric($article_seq) && nvl($title,'') != '' ) {
             // 게시물 수정
-            $updateArticle_result = $this->articleModel->updateArticle($article_seq, $board_seq, $title, $content);
+            $updateArticle_result = $this->articleModel->updateArticle($article_seq, $title, $content);
             if ( $updateArticle_result ){
                 // 요청 첨부파일 삭제
                 if ( is_array($delete_file_seq_list) ) {
