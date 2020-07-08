@@ -142,17 +142,16 @@ VALUES( ?, ? ) ";
     /**
      * 게시물 수정
      */
-    function updateArticle($article_seq, $board_seq, $title, $content) {
+    function updateArticle($article_seq, $title, $content) {
         $sql = "
 UPDATE TB_ARTICLE 
     SET TITLE=?, CONTENT=?
-WHERE SEQ = ?
-AND BOARD_SEQ = ? ";
+WHERE SEQ = ? ";
 
-        $query_result = $this->db->query( $sql, array($title, $content, $article_seq, $board_seq) );
+        $query_result = $this->db->query( $sql, array($title, $content, $article_seq) );
         
         return $query_result;
-    }//     EOF     function updateArticle($article_seq, $board_seq, $member_seq, $title, $content)
+    }//     EOF     function updateArticle($article_seq, $member_seq, $title, $content)
 
     /**
      * 게시물 첨부파일 삭제
