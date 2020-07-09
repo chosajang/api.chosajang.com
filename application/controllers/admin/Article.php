@@ -83,7 +83,7 @@ class Article extends CI_Controller {
         $result = array();
 
         // 게시판 컨텐츠 입력
-        $article_seq = $this->articleModel->insertArticle($board_seq, $member_seq, $title, $content, $notice_yn);
+        $article_seq = $this->articleModel->insertArticle($board_seq, $member_seq, $title, $content);
 
         if ( $article_seq ) {
             $upload_info = array(
