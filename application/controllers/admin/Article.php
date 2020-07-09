@@ -406,7 +406,7 @@ class Article extends CI_Controller {
     /**
      * 게시물 컨텐츠 삽입용 파일업로드(이미지전용)
      */
-    private function _article_contents_file_upload() {
+    private function _article_file_upload() {
         $result = array();
         $member_seq = $this->input->post('member_seq');
 
@@ -426,6 +426,6 @@ class Article extends CI_Controller {
             $result['message'] = AR_BAD_REQUEST[1];
         }
         echo json_encode( $result );
-    }//     EOF     private function _article_contents_file_upload()
+    }//     EOF     private function _article_file_upload()
 
 }//     EOC     class Article extends CI_Controller
