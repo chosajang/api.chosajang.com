@@ -127,36 +127,50 @@ class Article extends CI_Controller {
         $result = array();
         
         if ( is_numeric($article_seq) && nvl($title,'') != '' ) {
-            // 게시물 수정
-            $updateArticle_result = $this->articleModel->updateArticle($article_seq, $title, $content);
-            if ( $updateArticle_result ){
-                // 요청 첨부파일 삭제
-                if ( is_array($delete_file_seq_list) ) {
-                    $this->articleModel->deleteArticleFile($delete_file_seq_list);
-                }
-                // 신규 첨부파일 업로드
-                $upload_info = array(
-                    'MEMBER_SEQ'=>$member_seq,
-                    'FILE' => 'file'
-                );
-                $file_info_list = $this->my_common_library->file_upload( $upload_info );
+            $article_info = $this->articleModel->selectArticle($article_seq);
+            if( !is_null($article_info) ) {
+                if( $article_info['MEMBER_SEQ'] === $member_seq ) {
+                    // 게시물 수정
+                    $updateArticle_result = $this->articleModel->updateArticle($article_seq, $title, $content);
+                    if ( $updateArticle_result ){
+                        // 요청 첨부파일 삭제
+                        if ( is_array($delete_file_seq_list) ) {
+                            $this->articleModel->deleteArticleFile($delete_file_seq_list);
+                        }
+                        // 신규 첨부파일 업로드
+                        $upload_info = array(
+                            'MEMBER_SEQ'=>$member_seq,
+                            'FILE' => 'file'
+                        );
+                        $file_info_list = $this->my_common_library->file_upload( $upload_info );
 
-                $upload_file_count = 0;
-                foreach ( $file_info_list as $file_info ){
-                    // 게시판 내용 파일 입력
-                    $insertArticleFile_result = $this->articleModel->insertArticleFile($article_seq, $file_info['FILE_SEQ']);
-                    if ( $insertArticleFile_result ) { 
-                        $upload_file_count++; 
+                        $upload_file_count = 0;
+                        foreach ( $file_info_list as $file_info ){
+                            // 게시판 내용 파일 입력
+                            $insertArticleFile_result = $this->articleModel->insertArticleFile($article_seq, $file_info['FILE_SEQ']);
+                            if ( $insertArticleFile_result ) { 
+                                $upload_file_count++; 
+                            }
+                        }
+
+                        $result['result'] = true;
+                        $result['message'] = '게시물이 수정되었습니다';
+                        $result['upload_file_count'] = $upload_file_count;
+                    } else {
+                        $result['result'] = false;
+                        $result['error_code'] = AR_PROCESS_ERROR[0];
+                        $result['message'] = AR_PROCESS_ERROR[1];
                     }
+                } else {
+                    $result['result'] = false;
+                    $result['error_code'] = AR_PROCESS_ERROR[0];
+                    $result['message'] = AR_PROCESS_ERROR[1];
+                    $result['message'] .= ' - 게시물 작성자만 삭제할 수 있습니다';
                 }
-
-                $result['result'] = true;
-                $result['message'] = '게시물이 수정되었습니다';
-                $result['upload_file_count'] = $upload_file_count;
             } else {
                 $result['result'] = false;
-                $result['error_code'] = AR_PROCESS_ERROR[0];
-                $result['message'] = AR_PROCESS_ERROR[1];
+                $result['error_code'] = AR_EMPTY_REQUEST[0];
+                $result['message'] = AR_EMPTY_REQUEST[1];
             }
         } else {
             $result['result'] = false;
@@ -215,7 +229,6 @@ class Article extends CI_Controller {
 
         if ( is_numeric($article_seq) ) {
             $article_info = $this->articleModel->selectArticle( $article_seq );
-            
             if( !is_null($article_info) ) {
                 if( $article_info['MEMBER_SEQ'] == $member_seq ) {
                     // 게시물 삭제
