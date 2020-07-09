@@ -214,11 +214,10 @@ class Article extends CI_Controller {
         $result = array();
 
         if ( is_numeric($article_seq) ) {
-            // 게시물 작성자 or 관리자 인증
             $article_info = $this->articleModel->selectArticle( $article_seq );
             
             if( !is_null($article_info) ) {
-                if( $article_info['MEMBER_SEQ'] == $member_seq || $this->data['BOARD_INFO']['ADMIN_YN'] == 'Y' ) {
+                if( $article_info['MEMBER_SEQ'] == $member_seq ) {
                     // 게시물 삭제
                     $deleteArticle_result = $this->articleModel->deleteArticle( $article_seq );
     
@@ -234,7 +233,7 @@ class Article extends CI_Controller {
                     $result['result'] = false;
                     $result['error_code'] = AR_PROCESS_ERROR[0];
                     $result['message'] = AR_PROCESS_ERROR[1];
-                    $result['message'] .= ' - 게시물 작성자가 아니거나 관리자 권한 없습니다';
+                    $result['message'] .= ' - 게시물 작성자만 삭제할 수 있습니다';
                 }
             } else {
                 $result['result'] = false;
@@ -249,125 +248,6 @@ class Article extends CI_Controller {
 
         echo json_encode( $result );
     }//     EOF     private function _article_delete()
-
-    /**
-     * 댓글 작성
-     */
-    private function _article_comment_write() {
-        $article_seq = $this->input->post('article_seq');
-        $member_seq = $this->input->post('member_seq');
-        $content = $this->input->post('content');
-
-        $result = array();
-
-        if ( is_numeric($article_seq) && is_numeric($member_seq) && nvl($content,'') !== '' ) {
-            // 댓글 등록
-            $insertArticleComment_result = $this->articleModel->insertArticleComment($article_seq, $member_seq, $content);
-            if ( $insertArticleComment_result !== false )  {
-                $commentInfo = $this->articleModel->selectComment( $insertArticleComment_result );
-
-                $result['result'] = true;
-                $result['message'] = '댓글 등록 완료';
-                $result['data'] = $commentInfo;
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_PROCESS_ERROR[0];
-                $result['message'] = AR_PROCESS_ERROR[1];
-            }
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }//     EO      if ( is_numeric($article_seq) && is_numeric($member_seq) && nvl($content,'') !== '' )
-
-        echo json_encode($result);
-    }//     EOF     private function _article_comment_write()
-
-    /**
-     * 댓글 수정
-     */
-    private function _article_comment_modify() {
-        $comment_seq = $this->input->post('comment_seq');
-        $member_seq = $this->input->post('member_seq');
-        $content = $this->input->post('content');
-
-        $result = array();
-
-        if ( is_numeric($comment_seq) && is_numeric($member_seq) && nvl($content,'') !== '' ) {
-            $updateArticleComment_result = $this->articleModel->updateArticleComment($comment_seq, $member_seq, $content);
-            if ( $updateArticleComment_result ) {
-                $result['result'] = true;
-                $result['message'] = '댓글 수정 완료';
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_PROCESS_ERROR[0];
-                $result['message'] = AR_PROCESS_ERROR[1];
-            }
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }//     EO      if ( is_numeric($article_seq) && is_numeric($member_seq) && nvl($content,'') !== '' )
-
-        echo json_encode($result);
-    }//     EOF     private function _article_comment_modify()
-
-    /**
-     * 댓글 삭제
-     */
-    private function _article_comment_delete() {
-        $comment_seq = $this->input->post('comment_seq');
-        $member_seq = $this->input->post('member_seq');
-
-        $result = array();
-
-        if ( is_numeric($comment_seq) && is_numeric($member_seq) ) {
-            $deleteArticleComment_result = $this->articleModel->deleteArticleComment($comment_seq, $member_seq);
-            if ( $deleteArticleComment_result ) {
-                $result['result'] = true;
-                $result['message'] = '댓글 삭제 완료';
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_PROCESS_ERROR[0];
-                $result['message'] = AR_PROCESS_ERROR[1];
-            }
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }//     EOF     if ( is_numeric($comment_seq) && is_numeric($member_seq) )
-
-        echo json_encode($result);
-    }//     EOF     private function _article_comment_delete()
-
-    /**
-     * 댓글 목록
-     */
-    private function _article_comment_list() {
-        $article_seq = $this->input->get('article_seq');
-
-        $result = array();
-
-        if ( is_numeric($article_seq) ) {
-            // 댓글 목록
-            $comment_list = $this->articleModel->selectArticleComment_list($article_seq);
-
-            if( !is_null( $comment_list['COMMENT_LIST'] ) ) {
-                $result['result'] = true;
-                $result['comment_list'] = $comment_list;
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_EMPTY_REQUEST[0];
-                $result['message'] = AR_EMPTY_REQUEST[1];
-            }            
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }//     EO      if ( is_numeric($article_seq) )
-
-        echo json_encode($result);
-    }//     EOF     private function _article_comment_list()
 
     /**
      * 게시물 첨부파일 다운로드
