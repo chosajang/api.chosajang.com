@@ -165,7 +165,7 @@ class Article extends CI_Controller {
                     $result['result'] = false;
                     $result['error_code'] = AR_PROCESS_ERROR[0];
                     $result['message'] = AR_PROCESS_ERROR[1];
-                    $result['message'] .= ' - 게시물 작성자만 삭제할 수 있습니다';
+                    $result['message'] .= ' - 게시물 작성자만 수정할 수 있습니다';
                 }
             } else {
                 $result['result'] = false;
