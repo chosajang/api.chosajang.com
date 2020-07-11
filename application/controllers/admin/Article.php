@@ -39,18 +39,29 @@ class Article extends CI_Controller {
         if (method_exists($this, $method)) {
             // 크로스 도메인 사용관련
             header_cors();
-            
-            // API 사용 인증 : 세션ID 확인
-            $session_check_result = $this->my_common_library->session_check();
 
-            if ( $session_check_result ) {
+            // API 인증 목록
+            $auth_list = array('write','modify','delete','file_upload');
+            $api_auth = in_array( $function, $auth_list );
+
+            if ( $api_auth === true ) {
+                // API 사용 인증 : 세션ID 확인
+                $session_check_result = $this->my_common_library->session_check();
+
+                if ( $session_check_result ) {
+                    // 요청 컨트롤러 호출
+                    $this->{$this->method_prefix.$function}();
+                    exit;
+                } else {
+                    $result['result'] = false;
+                    $result['error_code'] = AR_FAILURE[0];
+                    $result['message'] = AR_FAILURE[1];
+                    $result['message'] .= " - 요청권한이 없습니다";
+                }
+            } else {
                 // 요청 컨트롤러 호출
                 $this->{$this->method_prefix.$function}();
                 exit;
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_FAILURE[0];
-                $result['message'] = AR_FAILURE[1];
             }
         } else {
             $result['result'] = false;

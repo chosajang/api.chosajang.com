@@ -39,7 +39,7 @@ class User extends CI_Controller {
             header_cors();
 
             // API 인증 목록
-            $auth_list = array('modify','password_modify');
+            $auth_list = array('create','modify','password_modify');
             $api_auth = in_array( $function, $auth_list );
 
             if ( $api_auth === true ) {
