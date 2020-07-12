@@ -3,13 +3,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  *
  */
-class Article extends CI_Controller {
+class Posts extends CI_Controller {
 
     public $data = array();
 
     public function __construct() {
         parent::__construct();
-        $this->method_prefix = '_article_';
+        $this->method_prefix = '_posts_';
         
         // Model Load
         $this->load->model('boardModel');
@@ -24,7 +24,7 @@ class Article extends CI_Controller {
      *
      */
     public function _remap($function) {
-        if ( $function == 'index' || $function == '' ) { $function = ''; }
+        if ( $function == 'index' || $function == '' ) { $function = 'list'; }
         $method = $this->method_prefix . $function;
 
         /**
@@ -39,29 +39,11 @@ class Article extends CI_Controller {
         if (method_exists($this, $method)) {
             // 크로스 도메인 사용관련
             header_cors();
-
-            $board_seq = $this->my_common_library->get_post('board_seq');
-            $member_seq = $this->my_common_library->get_post('member_seq');
-            if( $board_seq != "" && $member_seq != "" ) {
-                // 게시판 정보 조회
-                $board_info = $this->boardModel->selectBoardForMember( $board_seq );
-                if( @!is_null($board_info) && $board_info['SEQ'] != "" ) {
-                    // 게시판 정보 전역변수에 할당
-                    $this->data['BOARD_INFO'] = $board_info;
-                    // 요청 컨트롤러 호출
-                    $this->{$this->method_prefix.$function}();
-                    exit;
-                } else {
-                    $result['result'] = false;
-                    $result['error_code'] = AR_EMPTY_REQUEST[0];
-                    $result['message'] = AR_EMPTY_REQUEST[1];
-                    $result['message'] .= " - 게시판 정보가 없습니다";
-                }
-            } else {
-                $result['result'] = false;
-                $result['error_code'] = AR_BAD_REQUEST[0];
-                $result['message'] = AR_BAD_REQUEST[1];
-            }
+            // 게시판 정보 전역변수에 할당
+            $this->data['BOARD_INFO'] = $board_info;
+            // 요청 컨트롤러 호출
+            $this->{$this->method_prefix.$function}();
+            exit;
         } else {
             $result['result'] = false;
             $result['error_code'] = AR_BAD_REQUEST[0];
@@ -73,29 +55,20 @@ class Article extends CI_Controller {
     /**
      * 게시판 목록
      */
-    private function _article_list() {
-        $board_seq = $this->input->get('board_seq');
+    private function _posts_list() {
+        // 게시물 목록 조회
+        $post_list = $this->articleModel->selectArticle_list();
 
-        if ( is_numeric($board_seq) ) {
-            // 게시물 목록 조회
-            $article_list = $this->articleModel->selectArticle_list( $board_seq );
-            $article_list['BOARD_INFO'] = $this->data['BOARD_INFO'];
-
-            $result['result'] = true;
-            $result['data'] = $article_list;
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }
+        $result['result'] = true;
+        $result['data'] = $post_list;
 
         echo json_encode($result);
-    }//     EOF     private function _article_list()
+    }//     EOF     private function _posts_list()
     
     /**
      * 게시물 조회
      */
-    private function _article_read() {
+    private function _posts_read() {
         $article_seq = $this->input->get('article_seq');
         $member_seq = $this->input->get('member_seq');
 
@@ -132,12 +105,12 @@ class Article extends CI_Controller {
         }
 
         echo json_encode( $result );
-    }//     EOF     private function _article_read()
+    }//     EOF     private function _posts_read()
     
     /**
      * 댓글 작성
      */
-    private function _article_comment_write() {
+    private function _posts_comment_write() {
         $article_seq = $this->input->post('article_seq');
         $member_seq = $this->input->post('member_seq');
         $content = $this->input->post('content');
@@ -165,12 +138,12 @@ class Article extends CI_Controller {
         }//     EO      if ( is_numeric($article_seq) && is_numeric($member_seq) && nvl($content,'') !== '' )
 
         echo json_encode($result);
-    }//     EOF     private function _article_comment_write()
+    }//     EOF     private function _posts_comment_write()
 
     /**
      * 댓글 수정
      */
-    private function _article_comment_modify() {
+    private function _posts_comment_modify() {
         $comment_seq = $this->input->post('comment_seq');
         $member_seq = $this->input->post('member_seq');
         $content = $this->input->post('content');
@@ -194,12 +167,12 @@ class Article extends CI_Controller {
         }//     EO      if ( is_numeric($article_seq) && is_numeric($member_seq) && nvl($content,'') !== '' )
 
         echo json_encode($result);
-    }//     EOF     private function _article_comment_modify()
+    }//     EOF     private function _posts_comment_modify()
 
     /**
      * 댓글 삭제
      */
-    private function _article_comment_delete() {
+    private function _posts_comment_delete() {
         $comment_seq = $this->input->post('comment_seq');
         $member_seq = $this->input->post('member_seq');
 
@@ -222,12 +195,12 @@ class Article extends CI_Controller {
         }//     EOF     if ( is_numeric($comment_seq) && is_numeric($member_seq) )
 
         echo json_encode($result);
-    }//     EOF     private function _article_comment_delete()
+    }//     EOF     private function _posts_comment_delete()
 
     /**
      * 댓글 목록
      */
-    private function _article_comment_list() {
+    private function _posts_comment_list() {
         $article_seq = $this->input->get('article_seq');
 
         $result = array();
@@ -251,12 +224,12 @@ class Article extends CI_Controller {
         }//     EO      if ( is_numeric($article_seq) )
 
         echo json_encode($result);
-    }//     EOF     private function _article_comment_list()
+    }//     EOF     private function _posts_comment_list()
 
     /**
      * 게시물 첨부파일 다운로드
      */
-    private function _article_file_download() {
+    private function _posts_file_download() {
         $article_seq = $this->input->get('article_seq');
         $article_seq = nvl($article_seq);
         $file_seq = $this->input->get('file_seq');
@@ -285,31 +258,5 @@ class Article extends CI_Controller {
             $result['message'] = AR_BAD_REQUEST[1];
         }
         echo json_encode($result);
-    }//     EOF     private function _article_file_download()
-
-    /**
-     * 게시물 컨텐츠 삽입용 파일업로드(이미지전용)
-     */
-    private function _article_contents_file_upload() {
-        $result = array();
-        $member_seq = $this->input->post('member_seq');
-
-        // 신규 첨부파일 업로드
-        $upload_info = array(
-            'MEMBER_SEQ'=>$member_seq,
-            'FILE' => 'file'
-        );
-        $file_info_list = $this->my_common_library->file_upload( $upload_info );
-
-        if( count($file_info_list)) {
-            $result['result'] = true;
-            $result['data'] = $file_info_list;
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_BAD_REQUEST[0];
-            $result['message'] = AR_BAD_REQUEST[1];
-        }
-        echo json_encode( $result );
-    }//     EOF     private function _article_contents_file_upload()
-
+    }//     EOF     private function _posts_file_download()
 }//     EOC     class Article extends CI_Controller
