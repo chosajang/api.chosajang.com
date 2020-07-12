@@ -56,10 +56,9 @@ $route['translate_uri_dashes'] = FALSE;
 /**
  * 일반 페이지
  */
-$route['page/(:any)'] = 'site/page/$1';
-$route['user/(:any)'] = 'site/user/$1';
-$route['article/(:any)'] = 'site/article/$1';
-$route['project/(:any)'] = 'site/project/$1';
+$route['user/(:any)'] = 'service/user/$1';
+$route['posts/(:any)'] = 'service/posts/$1';
+$route['project/(:any)'] = 'service/project/$1';
 /**
  * 관리자 페이지
  */
