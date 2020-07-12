@@ -39,8 +39,6 @@ class Posts extends CI_Controller {
         if (method_exists($this, $method)) {
             // 크로스 도메인 사용관련
             header_cors();
-            // 게시판 정보 전역변수에 할당
-            $this->data['BOARD_INFO'] = $board_info;
             // 요청 컨트롤러 호출
             $this->{$this->method_prefix.$function}();
             exit;
@@ -79,8 +77,6 @@ class Posts extends CI_Controller {
             $article_info = $this->articleModel->selectArticle($article_seq);
             
             if ( !is_null($article_info) ) {
-                // 게시판 정보
-                $board_info = $this->data['BOARD_INFO'];
                 // 게시물 첨부파일 조회
                 $attachedFile_list = $this->articleModel->selectAttachedFile_list($article_seq);
                 // 게시물 첨부문서 조회
