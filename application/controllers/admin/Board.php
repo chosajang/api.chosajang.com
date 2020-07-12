@@ -39,7 +39,7 @@ class Board extends CI_Controller {
             header_cors();
 
             // API 인증 목록
-            $auth_list = array('write','modify','delete');
+            $auth_list = array('create','update','delete');
             $api_auth = in_array( $function, $auth_list );
 
             if ( $api_auth === true ) {

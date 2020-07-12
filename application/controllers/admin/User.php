@@ -39,7 +39,7 @@ class User extends CI_Controller {
             header_cors();
 
             // API 인증 목록
-            $auth_list = array('create','modify','password_modify');
+            $auth_list = array('create','update');
             $api_auth = in_array( $function, $auth_list );
 
             if ( $api_auth === true ) {
@@ -156,9 +156,9 @@ class User extends CI_Controller {
     }//     EOF     private function _user_info()
     
     /** 
-     * 회원 정보 수정(_user_modify)
+     * 회원 정보 수정(_user_update)
      */
-    private function _user_modify() {
+    private function _user_update() {
         $result = array();
         $req_member_seq     = $this->input->post('req_member_seq');
         $req_member_seq     = nvl($req_member_seq);
@@ -221,33 +221,7 @@ class User extends CI_Controller {
         }
 
         echo json_encode( $result );
-    }//     EOF     private function _user_modify()
-
-    /** 
-     * 회원 비밀번호 변경(_user_password_modify)
-     */
-    private function _user_password_modify() {
-        $result = array();
-
-        $member_seq = $this->input->post('member_seq');
-        $new_password = $this->input->post('new_password');
-        
-        // 비밀번호 변경
-        $updateMember_result = $this->memberModel->updateMember([
-            "SEQ" => $member_seq,
-            "PASSWORD" => password_hash($new_password, PASSWORD_BCRYPT),
-        ]);
-        if ( $updateMember_result ) {
-            $result['result'] = true;
-            $result['message'] = '비밀번호 변경 성공';
-        } else {
-            $result['result'] = false;
-            $result['error_code'] = AR_PROCESS_ERROR[0];
-            $result['message'] = AR_PROCESS_ERROR[1];
-        }
-
-        echo json_encode($result);
-    }//     EOF     private function _user_password_modify()
+    }//     EOF     private function _user_update()
 
     /**
      * 회원 목록(_user_list)
