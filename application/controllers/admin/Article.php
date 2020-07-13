@@ -75,9 +75,15 @@ class Article extends CI_Controller {
      * 게시물 목록
      */
     private function _article_list() {
+        $post_list = $this->articleModel->selectArticle_list();
+        // 한글 문자열 및 HTML Tag 제거
+        foreach($post_list as &$postInfo) {
+            $postInfo['CONTENT_PREVIEW'] = mb_substr($postInfo['CONTENT_PREVIEW'],0,(mb_strlen($postInfo['CONTENT_PREVIEW'])-2),'utf-8');
+            $postInfo['CONTENT_PREVIEW'] = strip_tags($postInfo['CONTENT_PREVIEW']);
+        }
         // 게시물 목록 조회
         $result['result'] = true;
-        $result['article_list'] = $this->articleModel->selectArticle_list();
+        $result['article_list'] = $post_list;
 
         echo json_encode($result);
     }//     EOF     private function _article_list()
