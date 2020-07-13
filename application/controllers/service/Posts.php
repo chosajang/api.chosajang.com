@@ -56,6 +56,10 @@ class Posts extends CI_Controller {
     private function _posts_list() {
         // 게시물 목록 조회
         $post_list = $this->articleModel->selectArticle_list();
+        $contentPrivew = $post_list['CONTENT_PREVIEW'];
+        $contentPrivew = mb_substr($contentPrivew,0,200,'utf-8');
+        $contentPrivew = strip_tags($contentPrivew);
+        $post_list['CONTENT_PREVIEW'] = $contentPrivew;
 
         $result['result'] = true;
         $result['data'] = $post_list;
