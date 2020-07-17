@@ -72,7 +72,6 @@ class Posts extends CI_Controller {
      */
     private function _posts_read() {
         $article_seq = $this->input->get('article_seq');
-        $member_seq = $this->input->get('member_seq');
 
         $result = array();
 
