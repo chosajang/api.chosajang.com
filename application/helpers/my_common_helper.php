@@ -10,6 +10,9 @@ if( !function_exists('header_cors') ) {
         Header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
         Header("Access-Control-Max-Age: 3600");
         Header("Access-Control-Allow-Headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
+        Header('Cache-Control: no-cache, must-revalidate');
+        Header('Content-type: application/json');
+        // <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> 
     }//     EOF     function header_cors()
 }//     EO      if( !function_exists('header_cors') ) {
 /**
