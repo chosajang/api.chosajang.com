@@ -39,9 +39,6 @@ class User extends CI_Controller {
 
         // 요청 컨트롤러가 존재하는 확인
         if (method_exists($this, $method)) {
-            // 크로스 도메인 사용관련
-            header_cors();
-
             // API 인증 목록
             $auth_list = array('logout','login_check','info','modify','password_modify');
             $api_auth = in_array( $function, $auth_list );
@@ -60,6 +57,8 @@ class User extends CI_Controller {
                     $result['message'] = AR_FAILURE[1];
                 }
             } else {
+                // 크로스 도메인 사용관련
+                header_cors();
                 // 요청 컨트롤러 호출
                 $this->{$this->method_prefix.$function}();
                 exit;
