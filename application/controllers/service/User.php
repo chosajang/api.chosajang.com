@@ -26,6 +26,9 @@ class User extends CI_Controller {
      *
      */
     public function _remap($function) {
+        // 크로스 도메인 사용관련
+        header_cors();
+
         if ( $function == 'index' || $function == '' ) { $function = ''; }
         $method = $this->method_prefix . $function;
 
@@ -57,8 +60,6 @@ class User extends CI_Controller {
                     $result['message'] = AR_FAILURE[1];
                 }
             } else {
-                // 크로스 도메인 사용관련
-                header_cors();
                 // 요청 컨트롤러 호출
                 $this->{$this->method_prefix.$function}();
                 exit;
