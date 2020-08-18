@@ -8,6 +8,9 @@ class Posts extends CI_Controller {
     public $data = array();
 
     public function __construct() {
+        // 크로스 도메인 사용관련
+        header_cors();
+        
         parent::__construct();
         $this->method_prefix = '_posts_';
         
@@ -37,8 +40,6 @@ class Posts extends CI_Controller {
 
         // 요청 컨트롤러가 존재하는 확인
         if (method_exists($this, $method)) {
-            // 크로스 도메인 사용관련
-            header_cors();
             // 요청 컨트롤러 호출
             $this->{$this->method_prefix.$function}();
             exit;
