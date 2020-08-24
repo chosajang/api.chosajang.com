@@ -8,7 +8,7 @@ if( !function_exists('header_cors') ) {
     function header_cors(){
         Header('Access-Control-Allow-Origin: *');
         Header('Access-Control-Allow-Headers: *');
-        Header('Access-Control-Allow-Methods: POST, GET, PUT, PATCH, DELETE, OPTIONS');
+        Header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
         Header('Access-Control-Max-Age: 3600');
         Header('Access-Control-Allow-Credentials: true');
         Header('Cache-Control: no-cache, must-revalidate');
