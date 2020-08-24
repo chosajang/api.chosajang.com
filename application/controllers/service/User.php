@@ -10,6 +10,9 @@ class User extends CI_Controller {
     public $result;
 
     public function __construct() {
+        // 크로스 도메인 사용관련
+        header_cors();
+        
         parent::__construct();
         $this->method_prefix = '_user_';
         
@@ -26,9 +29,6 @@ class User extends CI_Controller {
      *
      */
     public function _remap($function) {
-        // 크로스 도메인 사용관련
-        header_cors();
-
         if ( $function == 'index' || $function == '' ) { $function = ''; }
         $method = $this->method_prefix . $function;
 

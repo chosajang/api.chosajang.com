@@ -10,6 +10,9 @@ class Board extends CI_Controller {
     public $callback;
 
     public function __construct() {
+        // 크로스 도메인 사용관련
+        header_cors();
+
         parent::__construct();
         $this->method_prefix = '_board_';
         
@@ -35,8 +38,6 @@ class Board extends CI_Controller {
 
         // 요청 컨트롤러가 존재하는 확인
         if (method_exists($this, $method)) {
-            // 크로스 도메인 사용관련
-            header_cors();
 
             // API 인증 목록
             $auth_list = array('create','update','delete');
