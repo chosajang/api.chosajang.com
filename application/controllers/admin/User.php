@@ -9,9 +9,6 @@ class User extends CI_Controller {
     public $callback;
 
     public function __construct() {
-        // 크로스 도메인 사용관련
-        header_cors();
-
         parent::__construct();
         $this->method_prefix = '_user_';
         
@@ -27,6 +24,9 @@ class User extends CI_Controller {
     public function _remap($function) {
         if ( $function == 'index' || $function == '' ) { $function = ''; }
         $method = $this->method_prefix . $function;
+
+        // 크로스 도메인 사용관련
+        header_cors();
 
         /**
          * view로 전달할 공통 정보
