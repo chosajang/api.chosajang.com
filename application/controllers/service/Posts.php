@@ -7,10 +7,7 @@ class Posts extends CI_Controller {
 
     public $data = array();
 
-    public function __construct() {
-        // 크로스 도메인 사용관련
-        header_cors();
-        
+    public function __construct() {        
         parent::__construct();
         $this->method_prefix = '_posts_';
         
@@ -30,6 +27,9 @@ class Posts extends CI_Controller {
         if ( $function == 'index' || $function == '' ) { $function = 'list'; }
         $method = $this->method_prefix . $function;
 
+        // 크로스 도메인 사용관련
+        header_cors();
+        
         /**
          * view로 전달할 공통 정보
          * - 요청 함수명
