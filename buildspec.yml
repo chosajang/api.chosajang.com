@@ -6,8 +6,8 @@ phases:
       - composer update
   post_build:
     commands:
-      - ls -al
-      - aws s3 cp --recursive dist/ s3://cb-cjs-api
+      #- ls -al
+      #- aws s3 cp --recursive dist/ s3://cb-cjs-api
 artifacts:
   files:
     - '**/*'
