@@ -10,4 +10,4 @@ phases:
 artifacts:
   files:
     - '**/*'
-  name: csj-api-$(date +%Y-%m-%d-%H-%i)
+  name: csj-api-$(date +%Y-%m-%d)
