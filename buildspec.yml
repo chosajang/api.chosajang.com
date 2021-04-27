@@ -11,4 +11,4 @@ phases:
 artifacts:
   files:
     - '**/*'
-# base-directory : 'dist/*'
+  name: csj-api-$(date +%Y-%m-%d)
