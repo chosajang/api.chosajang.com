@@ -1,0 +1,17 @@
+version: 0.1
+
+phases:
+  install:
+    runtime-versions:
+      php: 7.4
+    commands:
+      - composer update
+  post_build:
+    commands:
+      - ls -al
+      - aws s3 cp --recursive dist/ s3://cb-cjs-api
+artifacts:
+  files:
+    - '**/*'
+base-directory : 'dist/*'
+discard-paths: yes
