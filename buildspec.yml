@@ -7,7 +7,6 @@ phases:
   post_build:
     commands:
       # - ls -al
-      # - aws s3 cp --recursive dist/ s3://cb-cjs-api
 artifacts:
   files:
     - '**/*'
