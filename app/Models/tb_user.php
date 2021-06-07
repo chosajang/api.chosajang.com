@@ -18,4 +18,14 @@ class tb_user extends Authenticatable
     protected $fillable = [
         'user_seq', 'id', 'name', 'nickname', 'password', 'email', 'tel', 'comment', 'add_date', 'mod_date', 'remember_token'
     ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    // protected $hidden = [
+    //     'password',
+    //     'remember_token',
+    // ];
 }

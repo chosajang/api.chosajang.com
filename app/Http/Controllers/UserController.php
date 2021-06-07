@@ -20,10 +20,11 @@ class UserController extends BaseController
     public function info($user_seq): array
     {
         $result = array();
-        $userInfo = DB::table('tb_user')
+        $user = DB::table('tb_user as tu')
+                      ->select('tu.user_seq','tu.id','tu.name','tu.nickname','tu.email','tu.tel','tu.comment','tu.add_date','tu.mod_date','tu.profile_file_seq')
                       ->where(['user_seq'=>$user_seq])
-                      ->first();
-        $result["data"] = $userInfo;
+                      ->get();
+        $result["data"] = $user;
         $result["result"] = true;
 
         return $result;

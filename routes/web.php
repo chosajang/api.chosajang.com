@@ -23,8 +23,12 @@ Route::get('/', function () {
 Route::post('/login', [AuthController::class,'login']);
 Route::get('/logout', [AuthController::class,'logout']);
 
-Route::middleware('auth:sanctum')->group(function(){
-    Route::prefix('users')->group(function(){
-        Route::get('/{user_seq}', [UserController::class,'info']);
-    });
-});
+Route::middleware('auth:sanctum')->get('/users/{user_seq}',[UserController::class,'info']);
+
+// Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
+
+//     Route::prefix('users')->group(function(){
+//         Route::get('/{user_seq}', [UserController::class,'info']);
+//     });
+
+// });

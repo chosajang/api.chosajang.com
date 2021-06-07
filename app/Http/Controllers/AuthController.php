@@ -27,8 +27,9 @@ class AuthController extends BaseController
         $password = $request->input('password');
 
         // 회원 정보 조회
-        $user = tb_user::where('id', $id)->first();
-
+        $user = tb_user::select('user_seq','id','name','nickname','email','profile_file_seq','password','remember_token')
+                    ->where('id', $id)->first();
+        
         if (!Hash::check($password, $user->password)) {
             $loginResult['result'] = false;
             $loginResult['message'] = '아이디 또는 비밀번호가 올바르지 않습니다';
@@ -37,10 +38,12 @@ class AuthController extends BaseController
         }
         
         // 로그인 진행
-        Auth::login($user, true);
+        // Auth::login($user, true);
+        $bearerToken = $user->createToken('token-name', ['server:update'])->plainTextToken;
 
         $loginResult['result'] = true;
         $loginResult['data'] = $user->toArray();
+        $loginResult['data']['bearerToken'] = $bearerToken;
 
         return $loginResult;
     }
