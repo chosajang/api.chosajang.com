@@ -2,5 +2,4 @@ verison: 0.1
 os: linux
 files:
   - source: /
-    destination: /svc/build/api
-    
+    destination: /svc/web/api.chosajang.com
