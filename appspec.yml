@@ -2,4 +2,4 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /svc/web/api.chosajang.com
+    destination: /svc/web/api-laravel.chosajang.com
