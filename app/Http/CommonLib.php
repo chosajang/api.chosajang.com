@@ -8,9 +8,13 @@ use Illuminate\Http\Request;
 
 class CommonLib
 {
-    static function token_check(){
-        //return request()->user() ? true : false;
-        return true;
+    /**
+     * todo : 
+     * - 회원 정보 중 user_seq로 조회하여 사용중인(use_yn) 회원인지 확인
+     * - 회원 정보 중 tokenLifeTime을 확인하여 토큰 유지기간 확인
+     */
+    static function auth_check(){
+        return request()->user() ? true : false;
     }
     
     static function passwordCheck($_str)
@@ -83,15 +87,5 @@ class CommonLib
 
     static function filePath(){
         return 'https://static.chosajang.com/blog/';
-    }
-
-    static function print_r2($var)
-    {
-        ob_start();
-        print_r($var);
-        $str        =   ob_get_contents();
-        ob_end_clean();
-        $str        =   str_replace(" ", "&nbsp;", $str);
-        echo nl2br("<span style='font-family:Tahoma, 굴림; font-size:9pt;'>$str</span>");
     }
 }

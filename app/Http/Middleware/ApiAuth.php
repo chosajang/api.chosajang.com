@@ -6,9 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Http\CommonLib;
 
-use Illuminate\Support\Facades\Redirect;
-
-class ApiAuthenticate
+class ApiAuth
 {
     /**
      * Handle an incoming request.
@@ -19,11 +17,10 @@ class ApiAuthenticate
      */
     public function handle(Request $request, Closure $next)
     {
-        if(CommonLib::token_check()){
+        if( CommonLib::auth_check() ) {
             return $next($request);
-        }else{
-            return Redirect::to("/notPermission");
+        } else {
+            return redirect('/error');
         }
-        
     }
 }
