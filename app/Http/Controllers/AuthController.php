@@ -21,7 +21,7 @@ class AuthController extends BaseController
 
     public function login(Request $request): array
     {
-        $loginResult = array();
+        $result = array();
 
         $id = $request->input('id');
         $password = $request->input('password');
@@ -31,33 +31,48 @@ class AuthController extends BaseController
                     ->where('id', $id)->first();
         
         if (!Hash::check($password, $user->password)) {
-            $loginResult['result'] = false;
-            $loginResult['message'] = '아이디 또는 비밀번호가 올바르지 않습니다';
+            $result['result'] = false;
+            $result['message'] = '아이디 또는 비밀번호가 올바르지 않습니다';
 
-            return $loginResult;
+            return $result;
         }
         
         // 로그인 진행
         // Auth::login($user, true);
         $bearerToken = $user->createToken('token-name', ['server:update'])->plainTextToken;
 
-        $loginResult['result'] = true;
-        $loginResult['data'] = $user->toArray();
-        $loginResult['data']['bearerToken'] = $bearerToken;
+        $result['result'] = true;
+        $result['data'] = $user->toArray();
+        $result['data']['bearerToken'] = $bearerToken;
 
-        return $loginResult;
+        return $result;
+    }
+
+    public function loginCheck(Request $request): array
+    {
+        $result = array();
+        $result["result"] = true;
+        
+        if(Auth::check()){
+            $result["status"] = "로그인 중";
+        }else{
+            $result["status"] = "로그아웃 중";
+        }
+        return $result;
     }
 
 
     public function logout(Request $request): array
     {
-        $logoutResult = array();
-        $request->user()->currentAccessToken()->delete();
+        $result = array();
+        // $request->user()->currentAccessToken()->delete();
+        Auth::user()->tokens->each(function($token, $key) {
+            $token->delete();
+        });
 
-        //Auth::logout();
-        $logoutResult['result'] = true;
-        $logoutResult['message'] = '로그아웃되었습니다';
-        return $logoutResult;
+        $result['result'] = true;
+        $result['message'] = '로그아웃되었습니다';
+        return $result;
     }
 
 
