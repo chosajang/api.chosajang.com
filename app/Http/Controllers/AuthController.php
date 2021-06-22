@@ -38,7 +38,7 @@ class AuthController extends BaseController
         }
         
         // 로그인 진행
-        // Auth::login($user, true);
+        Auth::login($user, true);
         $bearerToken = $user->createToken('token-name', ['server:update'])->plainTextToken;
 
         $result['result'] = true;
@@ -53,11 +53,6 @@ class AuthController extends BaseController
         $result = array();
         $result["result"] = true;
         
-        if(Auth::check()){
-            $result["status"] = "로그인 중";
-        }else{
-            $result["status"] = "로그아웃 중";
-        }
         return $result;
     }
 
@@ -69,6 +64,7 @@ class AuthController extends BaseController
         Auth::user()->tokens->each(function($token, $key) {
             $token->delete();
         });
+        Auth::logout();
 
         $result['result'] = true;
         $result['message'] = '로그아웃되었습니다';
