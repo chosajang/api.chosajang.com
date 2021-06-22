@@ -3,7 +3,7 @@ os: linux
 files:
   - source: /
     destination: /svc/web/api-laravel # 배포 위치 지정 
-    overwrite: yes # 덮어쓰기 
+    overwrite: true # 덮어쓰기 
 permissions:  # CodeDeploy에서 EC2로 배포한 파일 및 폴더 권한 처리
   - object: /
     pattern: "**"
