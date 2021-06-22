@@ -10,7 +10,7 @@ class CommonLib
 {
     /**
      * todo : 
-     * - 회원 정보 중 user_seq로 조회하여 사용중인(use_yn) 회원인지 확인
+     * - 회원이 사용중인(use_yn) 회원인지 확인
      * - 회원 정보 중 tokenLifeTime을 확인하여 토큰 유지기간 확인
      */
     static function auth_check(){
