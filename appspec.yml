@@ -3,4 +3,4 @@ os: linux
 files:
   - source: /
     destination: /svc/web/api-laravel
-    overwrite: true
+    overwrite: yes
