@@ -17,6 +17,10 @@ class ApiAuth
      */
     public function handle(Request $request, Closure $next)
     {
+        if (! $request->expectsJson()) {
+            return redirect()->route('error', ['error_code' => 0]);
+        }
+        
         if( CommonLib::auth_check() ) {
             return $next($request);
         } else {

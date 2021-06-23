@@ -61,6 +61,7 @@ class CommonLib
         $result['result']   =   false;
 
         switch($code){
+            case "0" : $result['message'] = 'API 인증토큰이 없습니다'; break;
             case "100" : $result['message'] = '요청값이 정확하지 않습니다. 개발팀에 문의해주세요.'; break;
 
             case "200" : $result['message'] = '요청이 정확하지 않습니다. 정보를 정확히 입력하였는지 확인해주세요.'; break;
