@@ -23,27 +23,35 @@ class AuthController extends BaseController
     {
         $result = array();
 
-        $id = $request->input('id');
-        $password = $request->input('password');
+        // $id = $request->input('id');
+        // $password = $request->input('password');
 
-        // 회원 정보 조회
-        $user = tb_user::select('user_seq','id','name','nickname','email','profile_file_seq','password','remember_token')
-                    ->where('id', $id)->first();
-        
-        if (!Hash::check($password, $user->password)) {
+        $credentials = $request->only('id', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $result['result'] = true;
+        } else {
             $result['result'] = false;
-            $result['message'] = '아이디 또는 비밀번호가 올바르지 않습니다';
-
-            return $result;
         }
-        
-        // 로그인 진행
-        Auth::login($user, true);
-        $bearerToken = $user->createToken('token-name', ['server:update'])->plainTextToken;
 
-        $result['result'] = true;
-        $result['data'] = $user->toArray();
-        $result['data']['bearerToken'] = $bearerToken;
+        // // 회원 정보 조회
+        // $user = tb_user::select('user_seq','id','name','nickname','email','profile_file_seq','password','remember_token')
+        //             ->where('id', $id)->first();
+        
+        // if (!Hash::check($password, $user->password)) {
+        //     $result['result'] = false;
+        //     $result['message'] = '아이디 또는 비밀번호가 올바르지 않습니다';
+
+        //     return $result;
+        // }
+        
+        // // 로그인 진행
+        // Auth::login($user, true);
+        // $bearerToken = $user->createToken('token-name', ['server:update'])->plainTextToken;
+
+        // $result['result'] = true;
+        // $result['data'] = $user->toArray();
+        // $result['data']['bearerToken'] = $bearerToken;
 
         return $result;
     }
