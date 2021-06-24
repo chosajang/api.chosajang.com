@@ -20,7 +20,7 @@ use App\Http\Controllers\UserController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return CommonLib::errorCode(100);
 });
 
 Route::get('/error/{error_code}', function($error_code = 100){
@@ -29,7 +29,16 @@ Route::get('/error/{error_code}', function($error_code = 100){
 
 Route::post('/login', [AuthController::class,'login']);
 
-Route::middleware('apiAuth')->group( function() {
+Route::get('/test/{value}', function(Request $request, $value){
+    echo 'value - ' . $value . '<br/>';
+    if( $request->expectsJson() ) {
+        echo 'TRUE';
+    } else {
+        echo 'FALSE';
+    }
+});
+
+Route::middleware('auth:sanctum','apiAuth')->group( function() {
 
     Route::get('/logout', [AuthController::class,'logout']);
     Route::get('/loginCheck',[AuthController::class,'loginCheck']);

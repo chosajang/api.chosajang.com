@@ -3,8 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use App\Http\CommonLib;
+// use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+// use App\Http\CommonLib;
 
 class ApiAuth
 {
@@ -15,16 +16,12 @@ class ApiAuth
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next)
     {
-        if (! $request->expectsJson()) {
-            return redirect()->route('error', ['error_code' => 0]);
-        }
-        
-        if( CommonLib::auth_check() ) {
+        if( Auth::check() ) {
             return $next($request);
         } else {
-            return redirect('/error');
+            return redirect()->route('error', ['error_code' => 701]);
         }
     }
 }

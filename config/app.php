@@ -174,6 +174,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Aws\Laravel\AwsServiceProvider::class,
+        Laravel\Sanctum\SanctumServiceProvider::class,
 
     ],
 

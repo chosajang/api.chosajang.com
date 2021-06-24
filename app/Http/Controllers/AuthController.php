@@ -61,7 +61,6 @@ class AuthController extends BaseController
     {
         $result = array();
         // $request->user()->currentAccessToken()->delete();
-        $request->user()->currentAccessToken()->delete();
         Auth::user()->tokens->each(function($token, $key) {
             $token->delete();
         });
