@@ -47,8 +47,31 @@ class UsersController extends Controller
     /**
      * 회원 정보 수정
      */
-    public function userUpdate() {
-        
+    public function userUpdate(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'user_seq' => 'required|numeric|max:100',
+            'password' => 'required|string|min:8|max:255',
+            'name' => 'required|string|max:100',
+            'nickname' => 'required|string|max:100',
+            'tel' => 'required|string|max:14',
+            'email' => 'required|email|max:255|unique:users',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'result' => false,
+                'messages' => $validator->messages()
+            ], 401);
+        }
+
+        if (! $token = Auth::guard('api')->attempt(['user_seq' => $request->user_seq, 'password' => $request->password])) {
+            return response()->json([
+                'result' => false,
+                'error' => 'Unauthorized']
+            , 401);
+        }
+
+        return 'ok';
     }
 
 }

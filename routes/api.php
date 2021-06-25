@@ -37,6 +37,7 @@ Route::group(['middleware' => 'auth:api'], function(){
      */
     Route::get('users', [UsersController::class,'userList'])->name('api.user.list');
     Route::get('users/{user_seq}', [UsersController::class,'userInfo'])->name('api.user.info');
+    Route::put('users', [UsersController::class,'userUpdate'])->name('api.user.update');
 });
 
 /**
