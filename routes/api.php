@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\JWTAuthController;
+use App\Http\Controllers\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,23 +17,34 @@ use App\Http\Controllers\JWTAuthController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::post('register', [JWTAuthController::class,'register'])->name('api.jwt.register');
-
 Route::post('login', [JWTAuthController::class,'login'])->name('api.jwt.login');
 
+Route::group(['middleware' => 'auth:api'], function(){
+    /**
+     * JWT Auth
+     */
+    Route::get('user', [JWTAuthController::class,'user'])->name('api.jwt.user');
+    Route::get('refresh', [JWTAuthController::class,'refresh'])->name('api.jwt.refresh');
+    Route::get('logout', [JWTAuthController::class,'logout'])->name('api.jwt.logout');
+
+    /**
+     * Users
+     */
+    Route::get('users', [UsersController::class,'userList'])->name('api.user.list');
+    Route::get('users/{user_seq}', [UsersController::class,'userInfo'])->name('api.user.info');
+});
+
+/**
+ * Error
+ */
 Route::get('unauthorized', function() {
     return response()->json([
         'status' => 'error',
         'message' => 'Unauthorized'
     ], 401);
 })->name('api.jwt.unauthorized');
-
-Route::group(['middleware' => 'auth:api'], function(){
-    Route::get('user', [JWTAuthController::class,'user'])->name('api.jwt.user');
-    Route::get('refresh', [JWTAuthController::class,'refresh'])->name('api.jwt.refresh');
-    Route::get('logout', [JWTAuthController::class,'logout'])->name('api.jwt.logout');
-});
