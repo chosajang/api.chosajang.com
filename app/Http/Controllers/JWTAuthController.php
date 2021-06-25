@@ -10,6 +10,9 @@ use App\Models\User;
 
 class JWTAuthController extends Controller
 {
+    /**
+     * 회원 가입
+     */
     public function register(Request $request) {
         $validator = Validator::make($request->all(), [
             'id' => 'required|string|max:100',
@@ -32,11 +35,14 @@ class JWTAuthController extends Controller
         $user->save();
 
         return response()->json([
-            'status' => 'success',
+            'result' => true,
             'data' => $user
         ], 200);
     }
 
+    /**
+     * 로그인
+     */
     public function login(Request $request) {
         $validator = Validator::make($request->all(), [
             'id' => 'required|string|max:100',
@@ -45,39 +51,58 @@ class JWTAuthController extends Controller
     
         if($validator->fails()) {
             return response()->json([
-                'status' => 'error',
+                'result' => false,
                 'messages' => $validator->messages()
-            ], 200);
+            ], 401);
         }
     
         if (! $token = Auth::guard('api')->attempt(['id' => $request->id, 'password' => $request->password])) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'result' => false,
+                'error' => 'Unauthorized']
+            , 401);
         }
     
         return $this->respondWithToken($token);
     }
     
+    /**
+     * 토큰 갱신
+     */
     protected function respondWithToken($token) {
         return response()->json([
+            'result' => true,
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => Auth::guard('api')->factory()->getTTL() * 60 /** 토큰 유지시간 기본 60분 */
         ]);
     }
 
+    /**
+     * 토큰 갱신
+     */
     public function refresh() {
         return $this->respondWithToken(Auth::guard('api')->refresh());
     }
 
+    /**
+     * 현재 로그인한 회원 정보
+     */
     public function user() {
-        return response()->json(Auth::guard('api')->user());
+        return response()->json([
+            'result' => true,
+            'data' => Auth::guard('api')->user()
+        ], 201);
     }
 
+    /**
+     * 로그아웃
+     */
     public function logout() {
         Auth::guard('api')->logout();
     
         return response()->json([
-            'status' => 'success',
+            'result' => true,
             'message' => 'logout'
         ], 200);
     }
