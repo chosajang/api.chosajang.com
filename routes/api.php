@@ -46,6 +46,6 @@ Route::group(['middleware' => 'auth:api'], function(){
 Route::get('unauthorized', function() {
     return response()->json([
         'status' => 'error',
-        'message' => 'Unauthorized'
+        'message' => 'The api key is invalid.'
     ], 401);
 })->name('api.jwt.unauthorized');

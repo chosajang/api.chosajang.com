@@ -57,13 +57,19 @@ class UsersController extends Controller
             'email' => 'required|email|max:255|unique:users',
         ]);
 
+        $user_seq = $request->input('user_seq');
+        /**
+         * 유효성검사 실패 시, 
+         */
         if($validator->fails()) {
             return response()->json([
                 'result' => false,
                 'messages' => $validator->messages()
             ], 401);
         }
-
+        /**
+         * 비밀번호 확인
+         */
         if (! $token = Auth::guard('api')->attempt(['user_seq' => $request->user_seq, 'password' => $request->password])) {
             return response()->json([
                 'result' => false,
@@ -71,7 +77,22 @@ class UsersController extends Controller
             , 401);
         }
 
-        return 'ok';
+        $userData = array();
+        $userData['name'] = $request->input('name');
+        $userData['nickname'] = $request->input('nickname');
+        $userData['tel'] = $request->input('tel');
+        $userData['email'] = $request->input('email');
+
+
+        DB::table('tb_user')
+        ->where('user_seq', $user_seq)
+        ->update($userData);
+
+        $result = array();
+        $result['result'] = true;
+        $result['data'] = $userData;
+
+        return response()->json($result, 201);
     }
 
 }
