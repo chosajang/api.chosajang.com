@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\JWTAuthController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\UtilController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,11 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('users', [UsersController::class,'userList'])->name('api.user.list');
     Route::get('users/{user_seq}', [UsersController::class,'userInfo'])->name('api.user.info');
     Route::put('users', [UsersController::class,'userUpdate'])->name('api.user.update');
+
+    /**
+     * Util
+     */
+    Route::post('util/fileUpload',[UtilController::class,'fileUpload'])->name('api.file.upload');
 });
 
 /**
