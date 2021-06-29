@@ -18,9 +18,13 @@ class UsersController extends Controller
      * 회원 목록
      */
     public function userList() {
-        $list = DB::table('tb_user')
-            ->select('user_seq','id','name','nickname','email')
-            ->orderBy('created_at')
+        $list = DB::table('tb_user as user')
+            ->select('user.user_seq','user.id','user.name','user.nickname','user.email','user.profile_file_seq',DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path'))
+            ->leftjoin('tb_file as file', function($join) {
+                $join->on('user.profile_file_seq', '=', 'file.file_seq')
+                    ->where('file.use_yn','Y');
+            })
+            ->orderBy('user.created_at')
             ->get();
         
         $result = array();
