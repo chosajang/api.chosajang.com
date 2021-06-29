@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
+use App\Http\Controllers\UtilController;
+
 class UsersController extends Controller
 {
 
@@ -83,16 +85,45 @@ class UsersController extends Controller
         $userData['tel'] = $request->input('tel');
         $userData['email'] = $request->input('email');
 
-
         DB::table('tb_user')
-        ->where('user_seq', $user_seq)
-        ->update($userData);
+            ->where('user_seq', $user_seq)
+            ->update($userData);
 
         $result = array();
         $result['result'] = true;
         $result['data'] = $userData;
 
         return response()->json($result, 201);
+    }
+
+    /**
+     * 프로필 이미지 업로드
+     */
+    public function profileImageUpload(Request $request) {
+        $utilController = new UtilController;
+        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', '');
+        
+        if( $fileUploadResult['result'] ) {
+            /**
+             * tb_user.file_seq update
+             */
+            DB::table('tb_user')
+                ->where('user_seq', $request->user_seq )
+                ->update([
+                    'profile_file_seq' => $fileUploadResult['data']['file_seq']
+                ]);
+            
+            return response()
+                ->header('Content-Location', $type)
+                ->json([
+                    $fileUploadResult
+                ], 201);
+        } else {
+            return response()->json([
+                'result' => false,
+                'messages' => $fileUploadResult['messages']
+            ], $fileUploadResult['status_code']);
+        }
     }
 
 }
