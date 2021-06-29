@@ -56,7 +56,8 @@ class UsersController extends Controller
     public function userUpdate(Request $request) {
         $validator = Validator::make($request->all(), [
             'user_seq' => 'required|numeric|max:100',
-            'password' => 'required|string|min:8|max:255',
+            'password' => 'required|string|min:8|max:255|confirmed',
+            'password_confirmation' => 'required|string|min:8|max:255',
             'name' => 'required|string|max:100',
             'nickname' => 'required|string|max:100',
             'tel' => 'required|string|max:14',
@@ -98,35 +99,6 @@ class UsersController extends Controller
         $result['data'] = $userData;
 
         return response()->json($result, 201);
-    }
-
-    /**
-     * 프로필 이미지 업로드
-     */
-    public function profileImageUpload(Request $request) {
-        $utilController = new UtilController;
-        $filePath = 'user/' . $request->user_seq . '/';
-        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath);
-        
-        if( $fileUploadResult['result'] ) {
-            /**
-             * tb_user.file_seq update
-             */
-            DB::table('tb_user')
-                ->where('user_seq', $request->user_seq )
-                ->update([
-                    'profile_file_seq' => $fileUploadResult['data']['file_seq']
-                ]);
-            
-            return response()->json([
-                    $fileUploadResult
-                ], 201);
-        } else {
-            return response()->json([
-                'result' => false,
-                'messages' => $fileUploadResult['messages']
-            ], $fileUploadResult['status_code']);
-        }
     }
 
 }
