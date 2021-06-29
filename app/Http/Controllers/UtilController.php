@@ -13,36 +13,47 @@ use Exception;
 
 class UtilController extends Controller
 {
-    function fileUpload(Request $request){
+    /**
+     * $request - Request Object
+     * $fileKey - file form name
+     *  > ex: <input type="file" name="fileObject" /> -> "fileObject"
+     * $type - 유효성 검사 타입(image, video, file)
+     *  > image : 이미지 파일만
+     *  > video : 비디오 파일만
+     *  > file : 모든 파일
+     * $path - 업로드 경로(기본값 : 'temp/' ) * 끝에 반드시 '/'부호를 붙여주어야 함
+     */
+    public function fileUpload(Request $request, $fileKey = 'file', $type = '', $path = 'temp/') : array
+    {
         $result = array();
-
         /**
-         * 이미지 파일만 업로드
-         * todo : 비디오/이미지 = 미디어
-         * todo : 문서
-         * todo : 다른 클래스에서 호출될때, 파일경로, 파라메터명, 파일타입등을 받아 유효성 검사 및 후처리 가능하도록 수정
+         * 유효성 검사
          */
+        $conditions = '';
+        if( $type == 'image' ) {
+            $conditions = 'required|image|max:2048';
+        } else if( $type == 'video' ) {
+            $conditions = 'required|mimetypes:video/x-ms-asf,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/avi|max:20480';
+        } else {
+            $conditions = 'required|file|max:10240';
+        }
         $validator = Validator::make($request->all(), [
-            'file' => 'required|image',
+            $fileKey => $conditions,
         ]);
 
-        /**
-         * 유효성검사 실패 시, 
-         */
         if($validator->fails()) {
-            return response()->json([
-                'result' => false,
-                'messages' => $validator->messages()
-            ], 401);
+            $result['result'] = false;
+            $result['messages'] = $validator->messages();
+            $result['status_code'] = 400;
+            return $result;
         }
 
         $fileData = $request->file;        
-        $logical_name = $request->file('file')->getClientOriginalName();
+        $logical_name = $request->file( $fileKey )->getClientOriginalName();
 
-        // $ext = preg_replace('/^.*\.([^.]+)$/D', '$1', $logical_name);
-        $ext = $request->file('file')->extension();
-        $physical_name = round(microtime(true)).".".$ext;
-        $path = "temp/";
+        $extension = $request->file( $fileKey )->extension();
+        $physical_name = round(microtime(true)) . '.' .$extension; 
+        $path = $path == '' ? 'temp/' : $path;
 
         $sharedConfig = [
             'region' => 'ap-northeast-2',
@@ -63,8 +74,8 @@ class UtilController extends Controller
             $fileInfo['physical_name'] = $physical_name;
             $fileInfo['logical_name'] = $logical_name;
             $fileInfo['path'] = $path;
-            $fileInfo['size'] = $request->file('file')->getSize();
-            $fileInfo['mimetype'] = $request->file('file')->getMimeType();
+            $fileInfo['size'] = $request->file( $fileKey )->getSize();
+            $fileInfo['mimetype'] = $request->file( $fileKey )->getMimeType();
             // DB(tb_file) insert
             $file_seq = DB::table('tb_file')->insertGetId( $fileInfo, 'file_seq');
 
@@ -72,14 +83,16 @@ class UtilController extends Controller
             $fileInfo['file_seq'] = $file_seq;
             $result['data'] = $fileInfo;
 
-            return response()->json($result, 201);
+            return $result;
         }catch(Exception $e){
             report($e);
 
             $result['result'] = false;
             $result['messages'] = 'S3 or DB insert error';
+            $result['status_code'] = 500;
 
-            return response()->json($result, 500);
+            return $result;
         }
     }
+
 }
