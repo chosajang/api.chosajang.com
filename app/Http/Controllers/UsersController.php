@@ -110,7 +110,8 @@ class UsersController extends Controller
      */
     public function profileImageUpload(Request $request) {
         $utilController = new UtilController;
-        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', '');
+        $filePath = 'user/' . $request->user_seq . '/';
+        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath);
         
         if( $fileUploadResult['result'] ) {
             /**
