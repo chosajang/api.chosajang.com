@@ -100,4 +100,21 @@ class ArticlesController extends Controller
             'data' => $article
         ], 201);
     }
+
+    /**
+     * 게시물 에디터 이미지 업로드
+     * todo : 
+     * - 에디터에서 받는 양식에 맞게 변경
+     * - 게시물이 등록될 때, temp폴더에서 게시물 폴더로 이동 관련 
+     */
+    public function editorImageUpload(Request $request) {
+        $utilController = new UtilController;
+        $filePath = 'article/temp/';
+        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath);
+            
+        return response()->json([
+                $fileUploadResult
+            ], 201);
+    }
+
 }
