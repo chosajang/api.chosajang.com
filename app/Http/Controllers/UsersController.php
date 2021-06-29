@@ -34,8 +34,12 @@ class UsersController extends Controller
      * 회원 정보 조회
      */
     public function userInfo($user_seq) {
-        $user = DB::table('tb_user')
-            ->select('user_seq','id','name','nickname','email','tel','comment')
+        $user = DB::table('tb_user as user')
+            ->select('user.user_seq','user.id','user.name','user.nickname','user.email','user.tel','user.comment','user.profile_file_seq',DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path'))
+            ->leftjoin('tb_file as file', function($join) {
+                $join->on('user.profile_file_seq', '=', 'file.file_seq')
+                    ->where('file.use_yn','Y');
+            })
             ->where('user_seq', $user_seq)
             ->first();
 
@@ -101,7 +105,8 @@ class UsersController extends Controller
      */
     public function profileImageUpload(Request $request) {
         $utilController = new UtilController;
-        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', '');
+        $filePath = 'user/' . $request->user_seq . '/';
+        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath);
         
         if( $fileUploadResult['result'] ) {
             /**
@@ -113,9 +118,7 @@ class UsersController extends Controller
                     'profile_file_seq' => $fileUploadResult['data']['file_seq']
                 ]);
             
-            return response()
-                ->header('Content-Location', $type)
-                ->json([
+            return response()->json([
                     $fileUploadResult
                 ], 201);
         } else {
