@@ -105,4 +105,34 @@ class UsersController extends Controller
         return response()->json($result, 201);
     }
 
+    /**
+     * 프로필 이미지 업로드
+     */
+    public function profileImageUpload(Request $request) {
+        $utilController = new UtilController;
+        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', '');
+        
+        if( $fileUploadResult['result'] ) {
+            /**
+             * 회원 테이블에 업데이트
+             */
+            DB::table('tb_user')
+                ->where('user_seq', $request->user_seq )
+                ->update([
+                    'profile_file_seq' => $fileUploadResult['data']['file_seq']
+                ]);
+            
+            return response()->json([
+                    $fileUploadResult
+                ], 201);
+        } else {
+            return response()->json([
+                    'result' => false,
+                    'messages' => $fileUploadResult['messages']
+                ], $fileUploadResult['status_code']);
+        }
+    }
+
 }
+
+
