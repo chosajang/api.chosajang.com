@@ -74,7 +74,7 @@ class JWTAuthController extends Controller
             'result' => true,
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 360 /** 토큰 유지시간 */
+            'expires_in' => Auth::guard('api')->factory()->getTTL() * 3600 /** 토큰 유지시간 */
         ]);
     }
 
