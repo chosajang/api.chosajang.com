@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\JWTAuthController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ArticlesController;
+
+use App\Http\Controllers\UtilController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,8 +39,19 @@ Route::group(['middleware' => 'auth:api'], function(){
      * Users
      */
     Route::get('users', [UsersController::class,'userList'])->name('api.user.list');
-    Route::get('users/{user_seq}', [UsersController::class,'userInfo'])->name('api.user.info');
+    Route::get('users/{user_seq}', [UsersController::class,'userRead'])->name('api.user.read');
     Route::put('users', [UsersController::class,'userUpdate'])->name('api.user.update');
+    Route::patch('users', [UsersController::class,'profileImageUpload'])->name('api.user.profileImageUpload');
+
+    /**
+     * Articles
+     */
+    Route::get('articles', [ArticlesController::class,'articleList'])->name('api.article.list');
+    Route::get('articles/{article_seq}', [ArticlesController::class,'articleRead'])->name('api.article.read');
+    Route::post('articles', [ArticlesController::class,'articleCreate'])->name('api.article.create');
+    Route::put('articles', [ArticlesController::class,'articleUpdate'])->name('api.article.update');
+    Route::post('articles/editorUpload', [ArticlesController::class,'articleEditorUpload'])->name('api.article.editorUpload');
+
 });
 
 /**

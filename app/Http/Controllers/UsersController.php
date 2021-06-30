@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
+use App\Http\Controllers\UtilController;
+
 class UsersController extends Controller
 {
 
@@ -16,9 +18,13 @@ class UsersController extends Controller
      * 회원 목록
      */
     public function userList() {
-        $list = DB::table('tb_user')
-            ->select('user_seq','id','name','nickname','email')
-            ->orderBy('created_at')
+        $list = DB::table('tb_user as user')
+            ->select('user.user_seq','user.id','user.name','user.nickname','user.email','user.profile_file_seq',DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path'))
+            ->leftjoin('tb_file as file', function($join) {
+                $join->on('user.profile_file_seq', '=', 'file.file_seq')
+                    ->where('file.use_yn','Y');
+            })
+            ->orderBy('user.created_at')
             ->get();
         
         $result = array();
@@ -31,9 +37,13 @@ class UsersController extends Controller
     /**
      * 회원 정보 조회
      */
-    public function userInfo($user_seq) {
-        $user = DB::table('tb_user')
-            ->select('user_seq','id','name','nickname','email','tel','comment')
+    public function userRead($user_seq) {
+        $user = DB::table('tb_user as user')
+            ->select('user.user_seq','user.id','user.name','user.nickname','user.email','user.tel','user.comment','user.profile_file_seq',DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path'))
+            ->leftjoin('tb_file as file', function($join) {
+                $join->on('user.profile_file_seq', '=', 'file.file_seq')
+                    ->where('file.use_yn','Y');
+            })
             ->where('user_seq', $user_seq)
             ->first();
 
@@ -41,7 +51,7 @@ class UsersController extends Controller
         $result['result'] = true;
         $result['data'] = $user;
 
-        return response()->json($result, 201);
+        return response()->json($result, $user != null ? 200 : 204);
     }
 
     /**
@@ -49,15 +59,15 @@ class UsersController extends Controller
      */
     public function userUpdate(Request $request) {
         $validator = Validator::make($request->all(), [
-            'user_seq' => 'required|numeric|max:100',
-            'password' => 'required|string|min:8|max:255',
+            'user_seq' => 'required|numeric',
+            'password' => 'required|string|min:8|max:255|confirmed',
+            'password_confirmation' => 'required|string|min:8|max:255',
             'name' => 'required|string|max:100',
             'nickname' => 'required|string|max:100',
             'tel' => 'required|string|max:14',
             'email' => 'required|email|max:255|unique:users',
         ]);
 
-        $user_seq = $request->input('user_seq');
         /**
          * 유효성검사 실패 시, 
          */
@@ -83,16 +93,47 @@ class UsersController extends Controller
         $userData['tel'] = $request->input('tel');
         $userData['email'] = $request->input('email');
 
-
         DB::table('tb_user')
-        ->where('user_seq', $user_seq)
-        ->update($userData);
+            ->where('user_seq', $request->user_seq)
+            ->update($userData);
 
         $result = array();
         $result['result'] = true;
         $result['data'] = $userData;
 
-        return response()->json($result, 201);
+        return response()->json($result, 200);
+    }
+
+    /**
+     * 프로필 이미지 업로드
+     */
+    public function profileImageUpload(Request $request) {
+        $utilController = new UtilController;
+        $filePath = 'user/' . $request->user_seq . '/';
+        $request->merge( array( 'upload_user_seq' => $request->user_seq ) );
+        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath, '');
+        
+        if( $fileUploadResult['result'] ) {
+            /**
+             * 회원 테이블에 업데이트
+             */
+            DB::table('tb_user')
+                ->where('user_seq', $request->user_seq )
+                ->update([
+                    'profile_file_seq' => $fileUploadResult['data']['file_seq']
+                ]);
+            
+            return response()->json([
+                    $fileUploadResult
+                ], 201);
+        } else {
+            return response()->json([
+                    'result' => false,
+                    'messages' => $fileUploadResult['messages']
+                ], $fileUploadResult['status_code']);
+        }
     }
 
 }
+
+
