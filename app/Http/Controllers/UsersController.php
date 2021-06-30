@@ -37,7 +37,7 @@ class UsersController extends Controller
     /**
      * 회원 정보 조회
      */
-    public function userInfo($user_seq) {
+    public function userRead($user_seq) {
         $user = DB::table('tb_user as user')
             ->select('user.user_seq','user.id','user.name','user.nickname','user.email','user.tel','user.comment','user.profile_file_seq',DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path'))
             ->leftjoin('tb_file as file', function($join) {
@@ -51,7 +51,7 @@ class UsersController extends Controller
         $result['result'] = true;
         $result['data'] = $user;
 
-        return response()->json($result, 201);
+        return response()->json($result, $user != null ? 200 : 204);
     }
 
     /**
@@ -59,7 +59,7 @@ class UsersController extends Controller
      */
     public function userUpdate(Request $request) {
         $validator = Validator::make($request->all(), [
-            'user_seq' => 'required|numeric|max:100',
+            'user_seq' => 'required|numeric',
             'password' => 'required|string|min:8|max:255|confirmed',
             'password_confirmation' => 'required|string|min:8|max:255',
             'name' => 'required|string|max:100',
@@ -68,7 +68,6 @@ class UsersController extends Controller
             'email' => 'required|email|max:255|unique:users',
         ]);
 
-        $user_seq = $request->input('user_seq');
         /**
          * 유효성검사 실패 시, 
          */
@@ -95,14 +94,14 @@ class UsersController extends Controller
         $userData['email'] = $request->input('email');
 
         DB::table('tb_user')
-            ->where('user_seq', $user_seq)
+            ->where('user_seq', $request->user_seq)
             ->update($userData);
 
         $result = array();
         $result['result'] = true;
         $result['data'] = $userData;
 
-        return response()->json($result, 201);
+        return response()->json($result, 200);
     }
 
     /**
@@ -111,7 +110,8 @@ class UsersController extends Controller
     public function profileImageUpload(Request $request) {
         $utilController = new UtilController;
         $filePath = 'user/' . $request->user_seq . '/';
-        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath);
+        $request->merge( array( 'upload_user_seq' => $request->user_seq ) );
+        $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath, '');
         
         if( $fileUploadResult['result'] ) {
             /**
