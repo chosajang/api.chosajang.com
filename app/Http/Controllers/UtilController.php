@@ -14,16 +14,19 @@ use Exception;
 class UtilController extends Controller
 {
     /**
-     * $request - Request Object
-     * $fileKey - file form name
+     * $request(필수) - Request Object
+     *  > $request->upload_user_seq : 업로드하는 유저 시퀀스
+     *  > $request->file( $fileKey ) : 파일 객체
+     * $fileKey(필수) - file form name
      *  > ex: <input type="file" name="fileObject" /> -> "fileObject"
-     * $type - 유효성 검사 타입(image, video, file)
+     * $type(옵션) - 유효성 검사 타입(image, video, file)
      *  > image : 이미지 파일만
      *  > video : 비디오 파일만
      *  > file : 모든 파일
-     * $path - 업로드 경로(기본값 : 'temp/' ) * 끝에 반드시 '/'부호를 붙여주어야 함
+     * $path(옵션) - 업로드 경로(기본값 : 'temp/' ) * 끝에 반드시 '/'부호를 붙여주어야 함
+     * $filePrefix(옵션) - 파일 접두사
      */
-    public function fileUpload(Request $request, $fileKey = 'file', $type = '', $path = 'temp/') : array
+    public function fileUpload(Request $request, $fileKey = 'file', $type = '', $path = 'temp/', $filePrefix = '') : array
     {
         $result = array();
         /**
@@ -38,6 +41,7 @@ class UtilController extends Controller
             $conditions = 'required|file|max:10240';
         }
         $validator = Validator::make($request->all(), [
+            'upload_user_seq' => 'required|numeric',
             $fileKey => $conditions,
         ]);
 
@@ -48,12 +52,14 @@ class UtilController extends Controller
             return $result;
         }
 
+        $fileKey = $fileKey == '' ? 'file' : $fileKey;
+        $path = $path == '' ? 'temp/' : $path;
+
         $fileData = $request->file;        
         $logical_name = $request->file( $fileKey )->getClientOriginalName();
 
         $extension = $request->file( $fileKey )->extension();
-        $physical_name = round(microtime(true)) . '.' .$extension; 
-        $path = $path == '' ? 'temp/' : $path;
+        $physical_name = $filePrefix . round(microtime(true)) . '.' .$extension; 
 
         $sharedConfig = [
             'region' => 'ap-northeast-2',
@@ -76,6 +82,7 @@ class UtilController extends Controller
             $fileInfo['path'] = $path;
             $fileInfo['size'] = $request->file( $fileKey )->getSize();
             $fileInfo['mimetype'] = $request->file( $fileKey )->getMimeType();
+            $fileInfo['user_seq'] = $request->upload_user_seq;
             // DB(tb_file) insert
             $file_seq = DB::table('tb_file')->insertGetId( $fileInfo, 'file_seq');
 
