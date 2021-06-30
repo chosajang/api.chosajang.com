@@ -9,3 +9,9 @@ permissions:  # CodeDeploy에서 EC2로 배포한 파일 및 폴더 권한 처�
     pattern: "**"
     owner: ec2-user
     group: ec2-user
+
+hooks:
+  AfterInstall:
+    # EC2경로가 아니라 배포할 소스 코드에 shell script있어야 함
+    - location: scripts/post-processing.sh
+      runas: root

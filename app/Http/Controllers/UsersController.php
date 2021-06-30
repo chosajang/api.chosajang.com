@@ -39,12 +39,21 @@ class UsersController extends Controller
      */
     public function userRead($user_seq) {
         $user = DB::table('tb_user as user')
-            ->select('user.user_seq','user.id','user.name','user.nickname','user.email','user.tel','user.comment','user.profile_file_seq',DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path'))
+            ->select(
+                'user.user_seq',
+                'user.id',
+                'user.name',
+                'user.nickname',
+                'user.email',
+                'user.tel',
+                'user.comment',
+                'user.profile_file_seq',
+                DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path') )
             ->leftjoin('tb_file as file', function($join) {
                 $join->on('user.profile_file_seq', '=', 'file.file_seq')
                     ->where('file.use_yn','Y');
             })
-            ->where('user_seq', $user_seq)
+            ->where('user.user_seq', $user_seq)
             ->first();
 
         $result = array();
