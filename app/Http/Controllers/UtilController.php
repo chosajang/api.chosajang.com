@@ -74,6 +74,7 @@ class UtilController extends Controller
                 'Bucket' => "static.chosajang.com",
                 'Key' => $path.$physical_name,
                 'SourceFile' => $fileData,
+                'ContentType' => $request->file( $fileKey )->getMimeType()
             ]);
 
             $fileInfo = array();
