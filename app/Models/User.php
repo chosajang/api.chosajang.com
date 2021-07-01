@@ -30,8 +30,7 @@ class User extends Authenticatable implements JWTSubject
         'tel', 
         'comment', 
         'created_at', 
-        'updated_at', 
-        'remember_token'
+        'updated_at'
     ];    
 
     /**
@@ -40,8 +39,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password'
     ];
 
     /**
