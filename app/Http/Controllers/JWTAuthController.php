@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\User;
+use App\Http\Controllers\UsersController;
 
 class JWTAuthController extends Controller
 {
@@ -44,9 +45,18 @@ class JWTAuthController extends Controller
      * 로그인
      */
     public function login(Request $request) {
+        /**
+         * 비밀번호 규칙
+         * - 영문 대문자 포함
+         * - 영문 소문자 포함
+         * - 숫자 포함
+         * - 특수문자 포함
+         * - 8자 이상
+         * - 255자 이하
+         */
         $validator = Validator::make($request->all(), [
             'id' => 'required|string|max:100',
-            'password' => 'required|string|min:8|max:255',
+            'password' => 'required|string|min:8|max:255|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%@]).*$/',
         ]);
     
         if($validator->fails()) {
@@ -59,7 +69,7 @@ class JWTAuthController extends Controller
         if (! $token = Auth::guard('api')->attempt(['id' => $request->id, 'password' => $request->password])) {
             return response()->json([
                 'result' => false,
-                'error' => 'Unauthorized']
+                'error' => '아이디 또는 비밀번호가 올바르지 않습니다']
             , 401);
         }
     
@@ -70,10 +80,12 @@ class JWTAuthController extends Controller
      * 토큰 갱신
      */
     protected function respondWithToken($token) {
+        $usersController = new UsersController;
+        $userReadResult = $usersController->userRead( Auth::guard('api')->user()->user_seq );
         return response()->json([
             'result' => true,
             'access_token' => $token,
-            'userInfo' => Auth::guard('api')->user(),
+            'userInfo' => $userReadResult->original['data'],
             'token_type' => 'Bearer',
             'expires_in' => Auth::guard('api')->factory()->getTTL() * 3600 /** 토큰 유지시간 */
         ]);
