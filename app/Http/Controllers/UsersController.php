@@ -19,7 +19,14 @@ class UsersController extends Controller
      */
     public function userList() {
         $list = DB::table('tb_user as user')
-            ->select('user.user_seq','user.id','user.name','user.nickname','user.email','user.profile_file_seq',DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path'))
+            ->select(
+                'user.user_seq',
+                'user.id',
+                'user.name',
+                'user.nickname',
+                'user.email',
+                'user.profile_file_seq',
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as profile_file_path') )
             ->leftjoin('tb_file as file', function($join) {
                 $join->on('user.profile_file_seq', '=', 'file.file_seq')
                     ->where('file.use_yn','Y');
@@ -48,7 +55,7 @@ class UsersController extends Controller
                 'user.tel',
                 'user.comment',
                 'user.profile_file_seq',
-                DB::raw('IFNULL(CONCAT(file.path, file.physical_name),"") as profile_file_path') )
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/",file.path, file.physical_name),"") as profile_file_path') )
             ->leftjoin('tb_file as file', function($join) {
                 $join->on('user.profile_file_seq', '=', 'file.file_seq')
                     ->where('file.use_yn','Y');

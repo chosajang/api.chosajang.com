@@ -86,6 +86,7 @@ class UtilController extends Controller
             $fileInfo['user_seq'] = $request->upload_user_seq;
             // DB(tb_file) insert
             $file_seq = DB::table('tb_file')->insertGetId( $fileInfo, 'file_seq');
+            $fileInfo['file_url'] = env('IMAGE_URL') . '/' . $path . $physical_name;
 
             $result['result'] = true;
             $fileInfo['file_seq'] = $file_seq;
@@ -96,7 +97,7 @@ class UtilController extends Controller
             report($e);
 
             $result['result'] = false;
-            $result['messages'] = 'S3 or DB insert error';
+            $result['messages'] = 'S3 또는 DB 업로드(입력) 실패';
             $result['status_code'] = 500;
 
             return $result;
