@@ -27,11 +27,11 @@ class ArticlesController extends Controller
                 'article.post_yn',
                 'article.created_at',
                 'article.updated_at',
-                'user.id',
-                'user.name',
-                'user.nickname',
-                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", userFile.path, userFile.physical_name),"") as profile_file_path'),
-                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as thumbnail_file_path') )
+                'user.id as user_id',
+                'user.name as user_name',
+                'user.nickname as user_nickname',
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", userFile.path, userFile.physical_name),"") as user_image_url'),
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as thumbnail_url') )
             ->join('tb_user as user', function($join){
                 $join->on('article.user_seq', '=', 'user.user_seq')
                     ->leftjoin('tb_file as userFile', function($userJoin){
@@ -66,12 +66,12 @@ class ArticlesController extends Controller
                 'article.post_yn',
                 'article.created_at',
                 'article.updated_at',
-                'user.id',
-                'user.name',
-                'user.nickname',
-                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", userFile.path, userFile.physical_name),"") as profile_file_path'),
+                'user.id as user_id',
+                'user.name as user_name',
+                'user.nickname as user_nickname',
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", userFile.path, userFile.physical_name),"") as user_image_url'),
                 'article.thumbnail_file_seq',
-                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as thumbnail_file_path') )
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as thumbnail_url') )
             ->join('tb_user as user', function($join){
                 $join->on('article.user_seq', '=', 'user.user_seq')
                     ->leftjoin('tb_file as userFile', function($userJoin){

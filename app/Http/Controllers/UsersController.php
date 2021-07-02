@@ -26,7 +26,7 @@ class UsersController extends Controller
                 'user.nickname',
                 'user.email',
                 'user.profile_file_seq',
-                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as profile_file_path') )
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as profile_image_url') )
             ->leftjoin('tb_file as file', function($join) {
                 $join->on('user.profile_file_seq', '=', 'file.file_seq')
                     ->where('file.use_yn','Y');
@@ -55,7 +55,7 @@ class UsersController extends Controller
                 'user.tel',
                 'user.comment',
                 'user.profile_file_seq',
-                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/",file.path, file.physical_name),"") as profile_file_path') )
+                DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/",file.path, file.physical_name),"") as profile_image_url') )
             ->leftjoin('tb_file as file', function($join) {
                 $join->on('user.profile_file_seq', '=', 'file.file_seq')
                     ->where('file.use_yn','Y');
