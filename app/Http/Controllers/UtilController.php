@@ -55,12 +55,12 @@ class UtilController extends Controller
         $fileKey = $fileKey == '' ? 'file' : $fileKey;
         $path = $path == '' ? 'temp/' : $path;
 
-        $fileData = $request->file;        
+        $fileData = $request->file( $fileKey );
         $logical_name = $request->file( $fileKey )->getClientOriginalName();
 
         $extension = $request->file( $fileKey )->extension();
         $physical_name = $filePrefix . round(microtime(true)) . '.' .$extension; 
-
+        
         $sharedConfig = [
             'region' => 'ap-northeast-2',
             'scheme' => 'http',
