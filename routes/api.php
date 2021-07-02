@@ -60,6 +60,6 @@ Route::group(['middleware' => 'auth:api'], function(){
 Route::get('unauthorized', function() {
     return response()->json([
         'status' => 'error',
-        'message' => 'The api key is invalid.'
+        'message' => 'API Key가 유효기간 종료되었거나, 존재하지 않습니다'
     ], 401);
 })->name('api.jwt.unauthorized');
