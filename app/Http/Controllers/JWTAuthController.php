@@ -16,9 +16,9 @@ class JWTAuthController extends Controller
      */
     public function register(Request $request) {
         $validator = Validator::make($request->all(), [
-            'id' => 'required|string|max:100',
+            'id' => 'required|string|max:100|unique:tb_user',
             'name' => 'required|string|max:100',
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'required|email|max:255|unique:tb_user',
             'password' => 'required|string|min:8|max:255|confirmed',
             'password_confirmation' => 'required|string|min:8|max:255',
         ]);
@@ -87,7 +87,7 @@ class JWTAuthController extends Controller
             'access_token' => $token,
             'userInfo' => $userReadResult->original['data'],
             'token_type' => 'Bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 3600 /** 토큰 유지시간 */
+            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60000 /** 토큰 유지시간 */
         ]);
     }
 

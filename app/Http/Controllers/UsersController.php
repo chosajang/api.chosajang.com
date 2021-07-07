@@ -85,7 +85,7 @@ class UsersController extends Controller
             'name' => 'required|string|max:100',
             'nickname' => 'required|string|max:100',
             'tel' => 'required|string|max:14',
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'required|email|max:255|unique:tb_user',
         ]);
 
         /**
