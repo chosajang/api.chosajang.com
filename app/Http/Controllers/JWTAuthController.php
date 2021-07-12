@@ -18,7 +18,7 @@ class JWTAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|string|max:100|unique:tb_user',
             'name' => 'required|string|max:100',
-            'email' => 'required|email|max:255|unique:tb_user',
+            'email' => 'required|email:rfc,dns|max:255|unique:tb_user',
             'password' => 'required|string|min:8|max:255|confirmed',
             'password_confirmation' => 'required|string|min:8|max:255',
         ]);
@@ -38,7 +38,7 @@ class JWTAuthController extends Controller
         return response()->json([
             'result' => true,
             'data' => $user
-        ], 200);
+        ], 201);
     }
 
     /**
