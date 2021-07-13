@@ -21,7 +21,7 @@ class Article extends Model
         'article_seq', 
         'title', 
         'contents', 
-        'thumbnail_contents', 
+        'description', 
         'use_yn', 
         'post_yn', 
         'created_at', 

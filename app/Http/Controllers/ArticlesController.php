@@ -22,7 +22,7 @@ class ArticlesController extends Controller
             ->select(
                 'article.article_seq',
                 'article.title',
-                'article.thumbnail_contents',
+                'article.description',
                 'article.use_yn',
                 'article.post_yn',
                 'article.created_at',
@@ -61,7 +61,7 @@ class ArticlesController extends Controller
             ->select(
                 'article.article_seq',
                 'article.title',
-                'article.thumbnail_contents',
+                'article.description',
                 'article.use_yn',
                 'article.post_yn',
                 'article.created_at',
@@ -101,8 +101,7 @@ class ArticlesController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:100',
             'contents' => 'required|string',
-            'thumbnail_contents' => 'string|max:255',
-            'use_yn' => 'required|string|max:1',
+            'description' => 'string|max:255',
             'post_yn' => 'required|string|max:1',
             'thumbnail_image' => 'image|max:1024'
         ]);
@@ -153,7 +152,7 @@ class ArticlesController extends Controller
             'article_seq' => 'required|numeric',
             'title' => 'required|string|max:100',
             'contents' => 'required|string',
-            'thumbnail_contents' => 'string|max:255',
+            'description' => 'string|max:255',
             'use_yn' => 'required|string|max:1',
             'post_yn' => 'required|string|max:1',
             'thumbnail_image' => 'image|max:1024'
@@ -175,7 +174,7 @@ class ArticlesController extends Controller
         $article['article_seq'] = $request->article_seq;
         $article['title'] = $request->title;
         $article['contents'] = $request->contents;
-        $article['thumbnail_contents'] = $request->thumbnail_contents;
+        $article['description'] = $request->description;
         $article['use_yn'] = $request->use_yn;
         $article['post_yn'] = $request->post_yn;
 
