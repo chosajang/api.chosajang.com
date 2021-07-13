@@ -51,6 +51,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::post('articles', [ArticlesController::class,'articleCreate'])->name('api.article.create');
     Route::put('articles', [ArticlesController::class,'articleUpdate'])->name('api.article.update');
     Route::post('articles/editorUpload', [ArticlesController::class,'articleEditorUpload'])->name('api.article.editorUpload');
+    Route::patch('articles/delete', [ArticlesController::class,'articleDelete'])->name('api.article.delete');
 
 });
 

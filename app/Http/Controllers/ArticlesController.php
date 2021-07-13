@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\DB;
@@ -153,7 +154,6 @@ class ArticlesController extends Controller
             'title' => 'required|string|max:100',
             'contents' => 'required|string',
             'description' => 'string|max:255',
-            'use_yn' => 'required|string|max:1',
             'post_yn' => 'required|string|max:1',
             'thumbnail_image' => 'image|max:1024'
         ]);
@@ -175,7 +175,6 @@ class ArticlesController extends Controller
         $article['title'] = $request->title;
         $article['contents'] = $request->contents;
         $article['description'] = $request->description;
-        $article['use_yn'] = $request->use_yn;
         $article['post_yn'] = $request->post_yn;
 
         if( $request->hasFile('thumbnail_image') ) {
@@ -201,6 +200,37 @@ class ArticlesController extends Controller
         $result['data'] = $article;
 
         return response()->json($result, 200);
+    }
+
+    /**
+     * 게시물 삭제
+     */
+    public function articleDelete(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'article_seq' => 'required|numeric',
+            'use_yn' => [ 
+                'required', 
+                Rule::in(['Y'])
+            ],
+        ]);
+
+        /**
+         * 유효성검사 실패 시, 
+         */
+        if($validator->fails()) {
+            return response()->json([
+                'result' => false,
+                'messages' => $validator->messages()
+            ], 401);
+        }
+        /**
+         * todo : 상태 변경 쿼리 추가 
+         */
+        $result = array();
+        $result['result'] = true;
+        $result['data'] = 'TEST';
+
+        return response()->json($result, 200); 
     }
 
     /**
