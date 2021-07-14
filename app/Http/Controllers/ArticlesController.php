@@ -45,7 +45,7 @@ class ArticlesController extends Controller
                     ->where('file.use_yn','Y');
             })
             ->where('article.use_yn', 'Y')
-            ->orderBy('article.created_at')
+            ->orderByDesc('article.created_at')
             ->get();
 
         return response()->json([
@@ -63,6 +63,7 @@ class ArticlesController extends Controller
                 'article.article_seq',
                 'article.title',
                 'article.description',
+                'article.contents',
                 'article.use_yn',
                 'article.post_yn',
                 'article.created_at',
@@ -104,7 +105,7 @@ class ArticlesController extends Controller
             'contents' => 'required|string',
             'description' => 'string|max:255',
             'post_yn' => 'required|string|max:1',
-            'thumbnail_image' => 'image|max:1024'
+            'thumbnail_image' => 'image|max:2048'
         ]);
 
         /**
@@ -114,7 +115,7 @@ class ArticlesController extends Controller
             return response()->json([
                 'result' => false,
                 'messages' => $validator->messages()
-            ], 401);
+            ], 400);
         }
 
         $user = Auth::guard('api')->user();
@@ -165,7 +166,7 @@ class ArticlesController extends Controller
             return response()->json([
                 'result' => false,
                 'messages' => $validator->messages()
-            ], 401);
+            ], 400);
         }
 
         $user = Auth::guard('api')->user();
@@ -210,7 +211,7 @@ class ArticlesController extends Controller
             'article_seq' => 'required|numeric',
             'use_yn' => [ 
                 'required', 
-                Rule::in(['Y'])
+                Rule::in(['N'])
             ],
         ]);
 
@@ -221,14 +222,19 @@ class ArticlesController extends Controller
             return response()->json([
                 'result' => false,
                 'messages' => $validator->messages()
-            ], 401);
+            ], 400);
         }
-        /**
-         * todo : 상태 변경 쿼리 추가 
-         */
+
+        $article = array();
+        $article['use_yn'] = $request->use_yn;
+
+        DB::table('tb_article')
+            ->where('article_seq', $request->article_seq)
+            ->update($article);
+
         $result = array();
         $result['result'] = true;
-        $result['data'] = 'TEST';
+        $result['data'] = $article;
 
         return response()->json($result, 200); 
     }

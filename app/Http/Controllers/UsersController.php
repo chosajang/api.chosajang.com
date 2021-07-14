@@ -33,7 +33,7 @@ class UsersController extends Controller
                 $join->on('user.profile_file_seq', '=', 'file.file_seq')
                     ->where('file.use_yn','Y');
             })
-            ->orderBy('user.created_at')
+            ->orderByDesc('user.created_at')
             ->get();
         
         $result = array();
@@ -95,7 +95,7 @@ class UsersController extends Controller
             return response()->json([
                 'result' => false,
                 'messages' => $validator->messages()
-            ], 401);
+            ], 400);
         }
         /**
          * 비밀번호 확인
