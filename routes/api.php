@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JWTAuthController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\DashboardController;
 
 use App\Http\Controllers\UtilController;
 
@@ -34,6 +35,11 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('user', [JWTAuthController::class,'user'])->name('api.jwt.user');
     Route::get('refresh', [JWTAuthController::class,'refresh'])->name('api.jwt.refresh');
     Route::get('logout', [JWTAuthController::class,'logout'])->name('api.jwt.logout');
+
+    /**
+     * DashBoard
+     */
+    Route::get('dashboard', [DashboardController::class,'dashboard'])->name('api.dashboard');
 
     /**
      * Users
