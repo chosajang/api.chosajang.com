@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('users/{user_seq}', [UsersController::class,'userRead'])->name('api.user.read');
     Route::put('users', [UsersController::class,'userUpdate'])->name('api.user.update');
     Route::patch('users/profileImage', [UsersController::class,'profileImageUpload'])->name('api.user.profileImageUpload');
+    Route::patch('users/passwordChange', [UsersController::class,'passwordChange'])->name('api.user.passwordChange');
 
     /**
      * Articles

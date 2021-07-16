@@ -78,14 +78,54 @@ class UsersController extends Controller
      * 회원 정보 수정
      */
     public function userUpdate(Request $request) {
+        $user = Auth::guard('api')->user();
+        $email_vaildation = '';
+        if( $user['email'] != $request->input('email') ){
+            $email_vaildation = 'required|email|max:255|unique:tb_user';
+        }
         $validator = Validator::make($request->all(), [
-            'user_seq' => 'required|numeric',
-            'password' => 'required|string|min:8|max:255|confirmed',
-            'password_confirmation' => 'required|string|min:8|max:255',
             'name' => 'required|string|max:100',
             'nickname' => 'required|string|max:100',
             'tel' => 'required|string|max:14',
-            'email' => 'required|email|max:255|unique:tb_user',
+            'email' => $email_vaildation,
+        ]);
+
+        /**
+         * 유효성검사 실패 시, 
+         */
+        if($validator->fails()) {
+            return response()->json([
+                'result' => false,
+                'messages' => $validator->messages()
+            ], 400);
+        }
+
+        $userData = array();
+        $userData['name'] = $request->input('name');
+        $userData['nickname'] = $request->input('nickname');
+        $userData['tel'] = $request->input('tel');
+        $userData['email'] = $request->input('email');
+
+        DB::table('tb_user')
+            ->where('user_seq', $user['user_seq'])
+            ->update($userData);
+
+        $result = array();
+        $result['result'] = true;
+        $result['data'] = $userData;
+
+        return response()->json($result, 200);
+    }
+
+    /**
+     * 비밀번호 변경
+     */
+    public function passwordChange(Request $request) {
+        $user = Auth::guard('api')->user();
+        $validator = Validator::make($request->all(), [
+            'origin_password' => 'required|string|min:8|max:255',
+            'password' => 'required|string|min:8|max:255|confirmed',
+            'password_confirmation' => 'required|string|min:8|max:255'
         ]);
 
         /**
@@ -100,23 +140,22 @@ class UsersController extends Controller
         /**
          * 비밀번호 확인
          */
-        if (! $token = Auth::guard('api')->attempt(['user_seq' => $request->user_seq, 'password' => $request->password])) {
+        if (! $token = Auth::guard('api')->attempt(['user_seq' => $user['user_seq'], 'password' => $request->origin_password])) {
             return response()->json([
                 'result' => false,
-                'error' => 'Unauthorized']
-            , 401);
+                'messages' => '비밀번호가 틀립니다']
+            , 400);
         }
 
+        $user = Auth::guard('api')->user();
+
         $userData = array();
-        $userData['name'] = $request->input('name');
-        $userData['nickname'] = $request->input('nickname');
-        $userData['tel'] = $request->input('tel');
-        $userData['email'] = $request->input('email');
+        $userData['password'] = bcrypt($request->password);
 
         DB::table('tb_user')
-            ->where('user_seq', $request->user_seq)
+            ->where('user_seq', $user['user_seq'])
             ->update($userData);
-
+        
         $result = array();
         $result['result'] = true;
         $result['data'] = $userData;
