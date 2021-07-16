@@ -182,9 +182,9 @@ class UsersController extends Controller
                     'profile_file_seq' => $fileUploadResult['data']['file_seq']
                 ]);
             
-            return response()->json([
+            return response()->json(
                     $fileUploadResult
-                ], 201);
+                , 201);
         } else {
             return response()->json([
                     'result' => false,
