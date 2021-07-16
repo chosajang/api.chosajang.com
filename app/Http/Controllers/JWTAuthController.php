@@ -69,7 +69,7 @@ class JWTAuthController extends Controller
         if (! $token = Auth::guard('api')->attempt(['id' => $request->id, 'password' => $request->password])) {
             return response()->json([
                 'result' => false,
-                'error' => '아이디 또는 비밀번호가 올바르지 않습니다']
+                'messages' => '아이디 또는 비밀번호가 올바르지 않습니다']
             , 401);
         }
     
