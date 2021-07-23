@@ -241,8 +241,6 @@ class ArticlesController extends Controller
 
     /**
      * 게시물 에디터 이미지 업로드
-     * todo : 
-     * - 에디터에서 받는 양식에 맞게 변경
      */
     public function articleEditorUpload(Request $request) {
         $user = Auth::guard('api')->user();
