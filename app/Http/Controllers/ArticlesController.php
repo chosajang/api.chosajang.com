@@ -248,10 +248,19 @@ class ArticlesController extends Controller
         $filePath = 'article/temp/';
         $request->merge( array( 'upload_user_seq' => $user['user_seq'] ) );
         $fileUploadResult = $utilController->fileUpload($request, 'file', 'image', $filePath, '');
-            
-        return response()->json([
-                $fileUploadResult
-            ], 201);
+
+        $result = array();
+        $status_code = 400;
+        if( $fileUploadResult['result'] ) {
+            $result['result'] = $fileUploadResult['result'];
+            $result['data'] = $fileUploadResult['data'];
+            $status_code = 201; // created
+        } else {
+            $result['result'] = $fileUploadResult['result'];
+            $result['messages'] = $fileUploadResult['messages'];
+            $status_code = $fileUploadResult['status_code'];
+        }
+        return response()->json( $result, $status_code );
     }
 
 }

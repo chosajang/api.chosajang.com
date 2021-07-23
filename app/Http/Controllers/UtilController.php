@@ -94,7 +94,6 @@ class UtilController extends Controller
 
             return $result;
         }catch(Exception $e){
-
             report($e);
             $result['result'] = false;
             $result['messages'] = 'S3 또는 DB 업로드(입력) 실패';
