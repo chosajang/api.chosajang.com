@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Services\ArticlesController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('articles', [ArticlesController::class,'articleList'])->name('service.article.list');
+Route::get('articles/{article_seq}', [ArticlesController::class,'articleRead'])->name('service.article.read');
