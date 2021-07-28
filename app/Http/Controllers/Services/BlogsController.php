@@ -14,7 +14,7 @@ use App\Models\Article;
 use App\Http\Controllers\UtilController;
 use App\Http\Controllers\Controller;
 
-class ArticlesController extends Controller
+class BlogsController extends Controller
 {
     /**
      * 게시물 목록

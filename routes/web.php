@@ -19,5 +19,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('articles', [ArticlesController::class,'articleList'])->name('service.article.list');
-Route::get('articles/{article_seq}', [ArticlesController::class,'articleRead'])->name('service.article.read');
+// Route::get('articles', [ArticlesController::class,'articleList'])->name('service.article.list');
+// Route::get('articles/{article_seq}', [ArticlesController::class,'articleRead'])->name('service.article.read');

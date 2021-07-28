@@ -8,6 +8,8 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\DashboardController;
 
+use App\Http\Controllers\Services\BlogsController as ServicesBlogsController;
+
 use App\Http\Controllers\UtilController;
 
 /*
@@ -61,6 +63,12 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::patch('articles/delete', [ArticlesController::class,'articleDelete'])->name('api.article.delete');
 
 });
+
+/**
+ * Services API
+ */
+Route::get('blog/posts', [ServicesBlogsController::class,'articleList'])->name('service.blog.list');
+Route::get('blog/posts/{article_seq}', [ServicesBlogsController::class,'articleRead'])->name('service.blog.read');
 
 /**
  * Error
