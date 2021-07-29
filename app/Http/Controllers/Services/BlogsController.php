@@ -32,7 +32,6 @@ class BlogsController extends Controller
                 'user.id as user_id',
                 'user.name as user_name',
                 'user.nickname as user_nickname',
-                'user.comment as user_comment',
                 DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", userFile.path, userFile.physical_name),"") as user_image_url'),
                 DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as thumbnail_url') )
             ->join('tb_user as user', function($join){
@@ -73,6 +72,7 @@ class BlogsController extends Controller
                 'user.id as user_id',
                 'user.name as user_name',
                 'user.nickname as user_nickname',
+                'user.comment as user_comment',
                 DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", userFile.path, userFile.physical_name),"") as user_image_url'),
                 'article.thumbnail_file_seq',
                 DB::raw('IFNULL(CONCAT("' . env('IMAGE_URL') . '/", file.path, file.physical_name),"") as thumbnail_url') )
