@@ -34,11 +34,11 @@ class UtilController extends Controller
          */
         $conditions = '';
         if( $type == 'image' ) {
-            $conditions = 'required|image|max:10240';
+            $conditions = 'required|image|max:20480';
         } else if( $type == 'video' ) {
             $conditions = 'required|mimetypes:video/x-ms-asf,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/avi|max:20480';
         } else {
-            $conditions = 'required|file|max:10240';
+            $conditions = 'required|file|max:20480';
         }
         $validator = Validator::make($request->all(), [
             'upload_user_seq' => 'required|numeric',
